@@ -13,6 +13,16 @@ body {
 }
 
 header {
+  font-family: 'Courier New', Courier, monospace;
   text-align: center;
   color: white;
+  background-color: rgba(8, 8, 8, 0.6);
+  padding: 10px;
+  width: 100%;
+  display: inline-block;
+  border-radius: 20px;
+}
+img {
+  height: 10%;
+  width: 50%;
 }
