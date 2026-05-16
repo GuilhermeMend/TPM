@@ -20,6 +20,7 @@ body {
 }
 
 .login {
+    /* Classe para o botão de login. */
     /* Permite posicionar o botão livremente na tela. */
     position: absolute;
     /* Distância do topo da tela. */
@@ -27,8 +28,8 @@ body {
     /* Distância da direita da tela. */
     right: 20px;
     /* Espaço interno do botão. */
-    /* 10px cima/baixo e 20px lados. */
-    padding: 10px 20px;
+    /* 12px cima/baixo e 25px lados. */
+    padding: 12px 25px;
     /* Remove a borda padrão do botão. */
     border: none;
     /* Deixa os cantos arredondados. */
@@ -37,6 +38,18 @@ body {
     background-color: white;
     /* Muda o cursor para "mãozinha". */
     cursor: pointer;
+    /* Tamanho da letra. */
+    font-size: 15px;
+    /* Deixa o texto em negrito. */
+    font-weight: bold;
+}
+
+.login:hover {
+    /* Efeito quando o mouse passa por cima do botão. */
+    background-color: rgb(220, 220, 220);
+    transform: scale(1.05);
+    /*transform: pode aumentar, diminuir, rotacionar, mover e inclinar o elemento
+    como scale que aumenta o tamanho do botão em 105% quando o mouse passa por cima.*/
 }
 
 h1 {
@@ -52,11 +65,14 @@ p {
 }
 
 .card {
+    /* Classe para os cards/blocos. */
     /* Cor de fundo do card/bloco. */
     background-color: rgb(30, 41, 59);
     /* Espaço interno. */
     /* O texto fica longe das bordas. */
-    padding: 15px;
+    padding: 20px;
+    width: 220px;
+    transition: 0.3s;
     /* Espaço externo. */
     /* Distância entre os elementos. */
     margin: 10px;
@@ -66,12 +82,21 @@ p {
     border: 1px solid rgb(51, 65, 85);
 }
 
+.cards {
+    display: flex;
+    /* Permite organizar os cards em linha. */
+    gap: 20px;
+    /* Espaço entre os cards. */
+    margin-top: 30px;
+}
+
 a {
     /* Cor dos links. */
     color: rgb(56, 189, 248);
 }
 
 .retangulo {
+    /* Retângulo principal do meio. */
     /* Largura fixa do retângulo. */
     width: 890px;
     /* Altura mínima. */
@@ -83,6 +108,9 @@ a {
     border-radius: 30px;
     /* Espaço acima do retângulo. */
     margin-top: 30px;
+    /* Espaço interno. */
+    /* O conteúdo fica longe das bordas. */
+    padding: 40px;
     /* Cria sombra. */
     /*
        0 = sombra não vai para os lados
@@ -91,9 +119,19 @@ a {
        rgba = cor da sombra com transparência
     */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    /* Faz o padding entrar dentro do tamanho total. */
+    /*
+       Sem isso:
+       o elemento pode ficar maior do que deveria.
+
+       Com isso:
+       largura e altura ficam mais organizadas.
+    */
+    box-sizing: border-box;
 }
 
 .retangulo2 {
+    /*retangulo de baixo*/
     width: 100%;
     /*Faz o retângulo ocupar toda a largura disponível da tela.*/
     min-height: 500px;
@@ -112,6 +150,7 @@ a {
 }
 
 .topo {
+    /*conteúdo dentro do retângulo de baixo*/
     display: flex;
     /*você consegue alinhar, centralizar e organizar facilmente.*/
     flex-direction: column;
@@ -120,11 +159,13 @@ a {
 }
 
 .retangulo2 h2 {
+    /*título dentro do retângulo de baixo*/
     color: white;
     font-size: 32px;
 }
 
 .retangulo2 p {
+    /*parágrafo dentro do retângulo de baixo*/
     color: rgb(203, 213, 225);
     font-size: 18px;
     line-height: 1.6;
