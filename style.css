@@ -173,3 +173,59 @@ a {
     max-width: 800px;
     /*Limita a largura do texto para ele não ficar enorme na tela inteira.*/
 }
+
+.login-container {
+    /* Caixa principal do login. */
+    /* Largura da caixa. */
+    width: 350px;
+    /* Cor de fundo da caixa. */
+    background-color: rgb(30, 41, 59);
+    /* Espaço interno. */
+    /* Faz o conteúdo ficar longe das bordas. */
+    padding: 40px;
+    /* Arredonda os cantos da caixa. */
+    border-radius: 20px;
+    /* Espaço acima da caixa. */
+    margin-top: 150px;
+    /* Ativa o Flexbox. */
+    /* Facilita organizar os elementos. */
+    display: flex;
+    /* Coloca os elementos em coluna. */
+    /*
+       Exemplo:
+
+       Título
+       Input
+       Input
+       Botão
+    */
+    flex-direction: column;
+    /* Espaço entre os elementos. */
+    gap: 20px;
+}
+
+.login-container input {
+    /* Espaço interno do input. */
+    padding: 12px;
+    /* Arredonda os cantos do input. */
+    border-radius: 10px;
+    /* Cria uma borda fina cinza. */
+    border: 1px solid gray;
+    /* Tamanho da letra do input. */
+    font-size: 16px;
+}
+
+.login-container button {
+    /* Espaço interno do botão. */
+    padding: 12px;
+    /* Remove a borda padrão. */
+    border: none;
+    /* Arredonda os cantos do botão. */
+    border-radius: 10px;
+    /* Cor de fundo do botão. */
+    background-color: rgb(25, 25, 100);
+    /* Cor do texto do botão. */
+    color: white;
+    /* Muda o cursor para mãozinha. */
+    cursor: pointer;
+}
