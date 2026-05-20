@@ -10,6 +10,6 @@ function validarLogin() {
     } else {
 
         document.getElementById("mensagem").innerText =
-            "Usuário ou senha inválidos";
+            "Usuário ou senha inválidos !";
     }
 }
