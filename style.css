@@ -1,231 +1,146 @@
+/* =========================
+   BODY DA HOME
+========================= */
+
 body {
-    /* Cria um fundo em degradê. */
-    /* "to bottom" = começa em cima e vai mudando até embaixo. */
-    background: linear-gradient( to bottom, rgb(25, 25, 100), rgb(15, 23, 70));
+
+    /* Fundo em degradê */
+    background:
+        linear-gradient(
+            to bottom,
+            rgb(25, 25, 100),
+            rgb(15, 23, 70)
+        );
+
     font-family: Arial, sans-serif;
+
     color: rgb(226, 232, 240);
-    /* Ativa o Flexbox para organizar os elementos. */
-    display: flex;
-    /* Coloca os elementos em coluna. */
-    /* Exemplo:
-       Título
-       Parágrafo
-       Retângulo
-    */
-    flex-direction: column;
-    /* Centraliza horizontalmente os elementos. */
-    align-items: center;
-    /* Remove a margem padrão do navegador. */
+
     margin: 0;
 }
 
+/* =========================
+   BOTÃO LOGIN
+========================= */
+
 .login {
-    /* Classe para o botão de login. */
-    /* Permite posicionar o botão livremente na tela. */
+
     position: absolute;
-    /* Distância do topo da tela. */
+
     top: 20px;
-    /* Distância da direita da tela. */
+
     right: 20px;
-    /* Espaço interno do botão. */
-    /* 12px cima/baixo e 25px lados. */
+
     padding: 12px 25px;
-    /* Remove a borda padrão do botão. */
+
     border: none;
-    /* Deixa os cantos arredondados. */
+
     border-radius: 10px;
-    /* Cor de fundo do botão. */
+
     background-color: white;
-    /* Muda o cursor para "mãozinha". */
+
     cursor: pointer;
-    /* Tamanho da letra. */
+
     font-size: 15px;
-    /* Deixa o texto em negrito. */
+
     font-weight: bold;
 }
 
 .login:hover {
-    /* Efeito quando o mouse passa por cima do botão. */
+
     background-color: rgb(220, 220, 220);
+
     transform: scale(1.05);
-    /*transform: pode aumentar, diminuir, rotacionar, mover e inclinar o elemento
-    como scale que aumenta o tamanho do botão em 105% quando o mouse passa por cima.*/
+}
+
+/* =========================
+   TOPO
+========================= */
+
+.topo {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    margin-top: 80px;
 }
 
 h1 {
-    /* Centraliza o texto. */
+
     text-align: center;
-    /* Cor do título. */
+
     color: rgb(248, 250, 252);
 }
 
 p {
-    /* Cor padrão dos parágrafos. */
+
     color: rgb(203, 213, 225);
 }
 
-.card {
-    /* Classe para os cards/blocos. */
-    /* Cor de fundo do card/bloco. */
-    background-color: rgb(30, 41, 59);
-    /* Espaço interno. */
-    /* O texto fica longe das bordas. */
-    padding: 20px;
-    width: 220px;
-    transition: 0.3s;
-    /* Espaço externo. */
-    /* Distância entre os elementos. */
-    margin: 10px;
-    /* Arredonda os cantos. */
-    border-radius: 10px;
-    /* Cria uma borda fina. */
-    border: 1px solid rgb(51, 65, 85);
-}
-
-.cards {
-    display: flex;
-    /* Permite organizar os cards em linha. */
-    gap: 20px;
-    /* Espaço entre os cards. */
-    margin-top: 30px;
-}
-
-a {
-    /* Cor dos links. */
-    color: rgb(56, 189, 248);
-}
+/* =========================
+   RETÂNGULO PRINCIPAL
+========================= */
 
 .retangulo {
-    /* Retângulo principal do meio. */
-    /* Largura fixa do retângulo. */
-    width: 890px;
-    /* Altura mínima. */
-    /* Pode crescer se tiver mais conteúdo. */
-    min-height: 700px;
-    /* Cor de fundo do retângulo. */
-    background-color: azure;
-    /* Arredonda os cantos. */
-    border-radius: 30px;
-    /* Espaço acima do retângulo. */
-    margin-top: 30px;
-    /* Espaço interno. */
-    /* O conteúdo fica longe das bordas. */
-    padding: 40px;
-    /* Cria sombra. */
-    /*
-       0 = sombra não vai para os lados
-       10px = sombra para baixo
-       30px = desfoque da sombra
-       rgba = cor da sombra com transparência
-    */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    /* Faz o padding entrar dentro do tamanho total. */
-    /*
-       Sem isso:
-       o elemento pode ficar maior do que deveria.
 
-       Com isso:
-       largura e altura ficam mais organizadas.
-    */
+    width: 890px;
+
+    min-height: 700px;
+
+    background-color: azure;
+
+    border-radius: 30px;
+
+    margin: 30px auto;
+
+    padding: 40px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.4);
+
     box-sizing: border-box;
 }
+
+/* =========================
+   RETÂNGULO DE BAIXO
+========================= */
 
 .retangulo2 {
-    /*retangulo de baixo*/
-    width: 100%;
-    /*Faz o retângulo ocupar toda a largura disponível da tela.*/
-    min-height: 500px;
-    background-color: rgb(39, 52, 89);
-    margin-top: 60px;
-    /*Cria espaço por fora do elemento, em cima.*/
-    padding: 50px;
-    /*Cria espaço interno. texto fica longe das bordas.*/
-    border-top-left-radius: 40px;
-    /*Arredonda apenas as bordas de cima.*/
-    border-top-right-radius: 40px;
-    /*Arredonda apenas as bordas de cima.*/
-    box-sizing: border-box;
-    /*Faz o padding entrar dentro do tamanho total.*/
-    /* Sem isso: o elemento pode ficar maior do que deveria. Com isso: largura e altura ficam mais organizadas.*/
-}
 
-.topo {
-    /*conteúdo dentro do retângulo de baixo*/
-    display: flex;
-    /*você consegue alinhar, centralizar e organizar facilmente.*/
-    flex-direction: column;
-    /*column = coluna (um embaixo do outro)*/
-    align-items: center;
+    width: 100%;
+
+    min-height: 500px;
+
+    background-color: rgb(39, 52, 89);
+
+    margin-top: 60px;
+
+    padding: 50px;
+
+    border-top-left-radius: 40px;
+
+    border-top-right-radius: 40px;
+
+    box-sizing: border-box;
 }
 
 .retangulo2 h2 {
-    /*título dentro do retângulo de baixo*/
+
     color: white;
+
     font-size: 32px;
 }
 
 .retangulo2 p {
-    /*parágrafo dentro do retângulo de baixo*/
+
     color: rgb(203, 213, 225);
+
     font-size: 18px;
+
     line-height: 1.6;
-    /*Aumenta o espaço entre as linhas do texto.*/
+
     max-width: 800px;
-    /*Limita a largura do texto para ele não ficar enorme na tela inteira.*/
-}
-
-.login-container {
-    /* Caixa principal do login. */
-    /* Largura da caixa. */
-    width: 350px;
-    /* Cor de fundo da caixa. */
-    background-color: rgb(30, 41, 59);
-    /* Espaço interno. */
-    /* Faz o conteúdo ficar longe das bordas. */
-    padding: 40px;
-    /* Arredonda os cantos da caixa. */
-    border-radius: 20px;
-    /* Espaço acima da caixa. */
-    margin-top: 150px;
-    /* Ativa o Flexbox. */
-    /* Facilita organizar os elementos. */
-    display: flex;
-    /* Coloca os elementos em coluna. */
-    /*
-       Exemplo:
-
-       Título
-       Input
-       Input
-       Botão
-    */
-    flex-direction: column;
-    /* Espaço entre os elementos. */
-    gap: 20px;
-}
-
-.login-container input {
-    /* Espaço interno do input. */
-    padding: 12px;
-    /* Arredonda os cantos do input. */
-    border-radius: 10px;
-    /* Cria uma borda fina cinza. */
-    border: 1px solid gray;
-    /* Tamanho da letra do input. */
-    font-size: 16px;
-}
-
-.login-container button {
-    /* Espaço interno do botão. */
-    padding: 12px;
-    /* Remove a borda padrão. */
-    border: none;
-    /* Arredonda os cantos do botão. */
-    border-radius: 10px;
-    /* Cor de fundo do botão. */
-    background-color: rgb(25, 25, 100);
-    /* Cor do texto do botão. */
-    color: white;
-    /* Muda o cursor para mãozinha. */
-    cursor: pointer;
 }
