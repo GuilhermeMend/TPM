@@ -5,7 +5,9 @@
 body {
 
     /* Imagem de fundo */
-    background-image: url("paisagem.jpg");
+    background-image: url("https://www.shutterstock.com/image-photo/on-roads-isle-beauty-partinello-260nw-2756400927.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
 
     /* Faz ocupar tela inteira */
     min-height: 100vh;
