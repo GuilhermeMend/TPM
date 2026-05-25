@@ -84,13 +84,22 @@ p {
    RETÂNGULO PRINCIPAL
 ========================= */
 
+/* Substitua o 'black' por um cinza escuro elegante */
+.retangulo h2 {
+    color: rgb(15, 23, 42); /* Um tom "asfalto" */
+}
+
+.retangulo p {
+    color: rgb(51, 65, 85); /* Um pouco mais suave para o texto do parágrafo */
+}
+
 .retangulo {
 
     width: 890px;
 
     min-height: 700px;
 
-    background-color: azure;
+    background-color: rgb(248, 250, 252);
 
     border-radius: 30px;
 
