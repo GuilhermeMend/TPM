@@ -24,9 +24,25 @@ Estamos desenvolvendo ainda
 | `<td>` | dado normal      |
 
 <tr>
-
 Significa:
-
 <table row>
-
 Ela cria uma linha da tabela.
+
+| Parte        | Função              |
+| ------------ | ------------------- |
+| `<label>`    | texto do campo      |
+| `for="nome"` | aponta para o input |
+| `id="nome"`  | identifica o input  |
+<label for="nome">Nome:</label>
+<input type="text" id="nome">
+
+<textarea>
+
+Cria a área de texto grande.
+
+Diferente do <input>, ela permite:
+
+várias linhas
+textos longos
+comentários
+mensagens
