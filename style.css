@@ -163,16 +163,6 @@ h1 em {
     margin-bottom: 20px;
 }
 
-.icon-wrap {
-    width: 36px;
-    height: 36px;
-    background: rgb(239, 246, 255);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgb(37, 99, 235);
-}
 
 .card-label {
     font-size: 12px;
