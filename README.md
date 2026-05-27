@@ -36,6 +36,7 @@ Ela cria uma linha da tabela.
 <label for="nome">Nome:</label>
 <input type="text" id="nome">
 
+
 <textarea>
 
 Cria a área de texto grande.
@@ -46,3 +47,32 @@ várias linhas
 textos longos
 comentários
 mensagens
+
+
+O <br> serve para quebrar linha no HTML.
+
+No seu exemplo:
+
+<p>Segunda a Sexta: 7h – 16h<br>Sábado: 8h – 12h</p>
+
+o navegador mostra assim:
+
+Segunda a Sexta: 7h – 16h
+Sábado: 8h – 12h
+
+Sem o <br> ficaria tudo na mesma linha:
+
+Segunda a Sexta: 7h – 16h Sábado: 8h – 12h
+
+
+<footer> representa o rodapé da página ou de uma seção.
+
+Normalmente ele fica na parte de baixo do site.
+O que costuma ter no <footer>?
+direitos autorais
+contatos
+redes sociais
+links
+endereço
+horários
+informações da empresa/escola
