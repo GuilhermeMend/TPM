@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão — Anuário Escolar 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="gestao.css">
+</head>
+
+<body>
+
+    <!-- ========================
+         HEADER
+    ======================== -->
+    <header>
+        <div class="header-logo">
+            <span class="logo-icon">🎓</span>
+            <h1>Anuário Escolar <span class="gestao-badge">Gestão</span></h1>
+        </div>
+
+        <nav>
+            <a href="#painel">Painel</a>
+            <a href="#turmas">Turmas</a>
+            <a href="#alunos">Alunos</a>
+            <a href="#avisos">Avisos</a>
+        </nav>
+
+        <button class="btn-sair" onclick="window.location.href='login.html'">
+            Sair
+        </button>
+    </header>
+
+    <main>
+
+        <!-- ========================
+             BANNER / HERO
+        ======================== -->
+        <section class="banner" id="painel">
+            <div class="banner-content">
+                <div class="banner-badge">⚙ Painel Administrativo 2026 ⚙</div>
+                <h2>Gerencie turmas, alunos<br>e comunicações da escola.</h2>
+                <p>Área restrita — acesso somente para administradores autorizados.</p>
+                <a href="#turmas" class="banner-btn">Acessar gestão</a>
+            </div>
+        </section>
+
+        <!-- ========================
+             STATS
+        ======================== -->
+        <section class="stats" id="stats-bar">
+            <div class="stat-item">
+                <span class="stat-num" id="stat-turmas">0</span>
+                <span class="stat-label">Turmas</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">38</span>
+                <span class="stat-label">Professores</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num" id="stat-alunos">0</span>
+                <span class="stat-label">Alunos</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">24</span>
+                <span class="stat-label">Eventos</span>
+            </div>
+        </section>
+
+        <!-- ========================
+             TURMAS
+        ======================== -->
+        <section class="secao" id="turmas">
+
+            <div class="secao-header">
+                <h2>Turmas</h2>
+                <p>Gerencie e adicione turmas ao anuário</p>
+            </div>
+
+            <div class="cards" id="cards-turmas">
+                <!-- Turmas geradas via JS -->
+            </div>
+
+            <!-- Botão adicionar turma -->
+            <div style="text-align:center; margin-top: 28px;">
+                <button class="btn-adicionar" onclick="abrirModalTurma()">
+                    + Adicionar turma
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             ALUNOS
+        ======================== -->
+        <section class="secao secao-clara" id="alunos">
+
+            <div class="secao-header">
+                <h2>Alunos</h2>
+                <p>Adicione, edite ou remova alunos cadastrados</p>
+            </div>
+
+            <div class="tabela-wrap">
+                <div class="tabela-topo">
+                    <span>Lista de Alunos</span>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <div class="filtros">
+                            <button class="filtro ativo" onclick="filtrar(this,'todos')">Todos</button>
+                            <button class="filtro" onclick="filtrar(this,'ativo')">Ativo</button>
+                            <button class="filtro" onclick="filtrar(this,'destaque')">Destaque</button>
+                        </div>
+                        <button class="btn-adicionar-sm" onclick="abrirModalAluno()">+ Adicionar aluno</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Matrícula</th>
+                            <th>Turma</th>
+                            <th>Status</th>
+                            <th>Turno</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-alunos">
+                        <!-- Alunos gerados via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             AVISOS / FORMULÁRIO
+        ======================== -->
+        <section class="secao" id="avisos">
+
+            <div class="secao-header">
+                <h2>Comunicados</h2>
+                <p>Envie um aviso interno para toda a equipe</p>
+            </div>
+
+            <div class="contato-grid">
+
+                <!-- Formulário -->
+                <div class="card contato-form">
+                    <h3>Novo comunicado</h3>
+                    <p>Preencha e o aviso será publicado para alunos e professores</p>
+
+                    <div class="campo">
+                        <label>Remetente</label>
+                        <input type="text" id="av-remetente" placeholder="Seu nome / setor">
+                    </div>
+                    <div class="campo">
+                        <label>Destinatário</label>
+                        <select id="av-dest">
+                            <option>Todos</option>
+                            <option>Apenas alunos</option>
+                            <option>Apenas professores</option>
+                            <option>Responsáveis</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label>Assunto</label>
+                        <input type="text" id="av-assunto" placeholder="Título do comunicado">
+                    </div>
+                    <div class="campo">
+                        <label>Mensagem</label>
+                        <textarea id="av-msg" placeholder="Escreva o comunicado..."></textarea>
+                    </div>
+                    <button class="btn-enviar" onclick="enviarAviso()">
+                        Publicar comunicado →
+                    </button>
+                    <p id="msg-confirmacao" style="color:#16a34a; font-weight:600; display:none; margin-top:10px; text-align:center;">
+                        ✓ Comunicado publicado com sucesso!
+                    </p>
+                </div>
+
+                <!-- Informações / últimos avisos -->
+                <div class="contato-infos">
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#eff6ff">📋</div>
+                        <div>
+                            <h4>Último comunicado</h4>
+                            <p>Reunião de pais — 12/06/2026<br>Destinatário: Responsáveis</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#f0fdf4">📅</div>
+                        <div>
+                            <h4>Próximo evento</h4>
+                            <p>Festa Junina · 20/06/2026<br>Ginásio — 14h às 18h</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fefce8">📞</div>
+                        <div>
+                            <h4>Secretaria</h4>
+                            <p>(11) 3000-0000<br>Seg a Sex · 7h às 18h</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fdf4ff">✉️</div>
+                        <div>
+                            <h4>E-mail da gestão</h4>
+                            <p>gestao@escola2026.edu.br</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================
+         FOOTER
+    ======================== -->
+    <footer>
+        <p>© 2026 · Anuário Escolar · Painel de Gestão · Acesso restrito</p>
+    </footer>
+
+    <!-- ========================
+         MODAL — ADICIONAR ALUNO
+    ======================== -->
+    <div class="modal-overlay" id="modal-aluno">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Adicionar Aluno</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-aluno')">✕</button>
+            </div>
+            <div class="campo">
+                <label>Nome completo</label>
+                <input type="text" id="novo-nome" placeholder="Ex: Maria Oliveira">
+            </div>
+            <div class="campo">
+                <label>Matrícula</label>
+                <input type="text" id="novo-matricula" placeholder="Ex: 2026009">
+            </div>
+            <div class="campo">
+                <label>Turma</label>
+                <select id="novo-turma">
+                    <!-- Populado via JS -->
+                </select>
+            </div>
+            <div class="campo">
+                <label>Status</label>
+                <select id="novo-status">
+                    <option value="ativo">Ativo</option>
+                    <option value="destaque">Destaque</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Turno</label>
+                <select id="novo-turno">
+                    <option>Manhã</option>
+                    <option>Tarde</option>
+                </select>
+            </div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-aluno')">Cancelar</button>
+                <button class="btn-confirmar" onclick="adicionarAluno()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         MODAL — ADICIONAR TURMA
+    ======================== -->
+    <div class="modal-overlay" id="modal-turma">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Adicionar Turma</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-turma')">✕</button>
+            </div>
+            <div class="campo">
+                <label>Código da turma</label>
+                <input type="text" id="turma-codigo" placeholder="Ex: 5A">
+            </div>
+            <div class="campo">
+                <label>Nome completo</label>
+                <input type="text" id="turma-nome" placeholder="Ex: 5º Ano A">
+            </div>
+            <div class="campo">
+                <label>Professor responsável</label>
+                <input type="text" id="turma-prof" placeholder="Ex: Prof. João Silva">
+            </div>
+            <div class="campo">
+                <label>Turno</label>
+                <select id="turma-turno">
+                    <option>Manhã</option>
+                    <option>Tarde</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Cor do cartão</label>
+                <select id="turma-cor">
+                    <option value="linear-gradient(135deg,#1d4ed8,#60a5fa)">Azul</option>
+                    <option value="linear-gradient(135deg,#7c3aed,#a855f7)">Roxo</option>
+                    <option value="linear-gradient(135deg,#059669,#34d399)">Verde</option>
+                    <option value="linear-gradient(135deg,#dc2626,#f87171)">Vermelho</option>
+                    <option value="linear-gradient(135deg,#d97706,#fbbf24)">Amarelo</option>
+                    <option value="linear-gradient(135deg,#0891b2,#22d3ee)">Ciano</option>
+                    <option value="linear-gradient(135deg,#db2777,#f472b6)">Rosa</option>
+                </select>
+            </div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-turma')">Cancelar</button>
+                <button class="btn-confirmar" onclick="adicionarTurma()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         MODAL — CONFIRMAR EXCLUSÃO
+    ======================== -->
+    <div class="modal-overlay" id="modal-excluir">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar exclusão</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-excluir')">✕</button>
+            </div>
+            <p style="color:#64748b; font-size:14px; margin-bottom:24px;" id="excluir-msg">
+                Tem certeza que deseja excluir este item?<br>Essa ação não pode ser desfeita.
+            </p>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-excluir')">Cancelar</button>
+                <button class="btn-excluir-confirm" id="btn-confirmar-exclusao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="gestao.js"></script>
+
+</body>
+</html>
