@@ -224,9 +224,9 @@ body::before {
     transition: 0.3s;
 }
 
-/* BOTÃO ENTRAR */
+/* BOTÃO ENTRAR — seleciona apenas o button direto, não o link */
 
-.login-container button:last-child {
+.login-container > button {
 
     background:
         linear-gradient(
@@ -244,4 +244,60 @@ body::before {
 
     box-shadow:
         0 10px 20px rgba(37,99,235,0.4);
+}
+
+/* =========================
+   ✅ NOVO: ÁREA DE CADASTRO
+========================= */
+
+/* Linha separadora com texto "Não tem conta?" */
+.cadastro-link {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    /* Linha fina acima para separar do botão Entrar */
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 8px;
+}
+
+.cadastro-link span {
+
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+}
+
+/* Botão de cadastro — visual secundário (outline) */
+.btn-cadastro {
+
+    display: inline-block;
+
+    padding: 10px 22px;
+
+    border-radius: 12px;
+    border: 1.5px solid rgba(56,189,248,0.6);
+
+    background: transparent;
+
+    color: rgb(56,189,248);
+
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.btn-cadastro:hover {
+
+    background: rgba(56,189,248,0.15);
+    border-color: rgb(56,189,248);
+
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(56,189,248,0.25);
 }
