@@ -4,8 +4,6 @@
 
 body {
 
-    background-image: url("images/sakura.png");
-
     min-height: 100vh;
 
     display: flex;
@@ -14,30 +12,53 @@ body {
 
     margin: 0;
 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
     font-family: Arial, sans-serif;
 
     position: relative;
+    overflow: hidden;
+
+    background: #0a0f1e;
 }
 
-/* CAMADA ESCURA */
+/* FUNDO GRADIENTE ANIMADO */
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(37, 99, 235, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse at 60% 10%, rgba(139, 92, 246, 0.14) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #0d1b3e 100%);
+    animation: bgPulse 10s ease-in-out infinite alternate;
+}
+
+@keyframes bgPulse {
+    0%   { opacity: 1; filter: hue-rotate(0deg); }
+    100% { opacity: 1; filter: hue-rotate(20deg); }
+}
+
+/* PARTÍCULAS FLUTUANTES */
 
 body::before {
-
     content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        radial-gradient(circle, rgba(56,189,248,0.35) 1px, transparent 1px),
+        radial-gradient(circle, rgba(139,92,246,0.25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+    background-size: 120px 120px, 180px 180px, 90px 90px;
+    background-position: 0 0, 60px 60px, 30px 90px;
+    animation: particles 18s linear infinite;
+}
 
-    position: absolute;
-
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0, 0, 0, 0.45);
-
-    top: 0;
-    left: 0;
+@keyframes particles {
+    from { background-position: 0 0, 60px 60px, 30px 90px; }
+    to   { background-position: 0 -500px, 60px -440px, 30px -410px; }
 }
 
 /* =========================
@@ -47,7 +68,6 @@ body::before {
 .login-container {
 
     position: relative;
-
     z-index: 1;
 
     width: 375px;
@@ -56,18 +76,20 @@ body::before {
 
     border-radius: 25px;
 
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(15, 23, 42, 0.65);
 
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 
-    border: 2px solid rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(56,189,248,0.18);
 
     display: flex;
     flex-direction: column;
     gap: 20px;
 
     box-shadow:
-        0 15px 50px rgba(0,0,0,0.6);
+        0 15px 50px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.04) inset;
 
     animation: aparecer 0.8s ease;
 }
@@ -79,16 +101,12 @@ body::before {
 @keyframes aparecer {
 
     from {
-
         opacity: 0;
-
         transform: translateY(-30px);
     }
 
     to {
-
         opacity: 1;
-
         transform: translateY(0);
     }
 }
@@ -137,14 +155,14 @@ body::before {
 
     color: white;
 
-    background: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.10);
 
     transition: 0.3s;
 }
 
 .tipo:hover {
 
-    background: rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.18);
 }
 
 .tipo.ativo {
@@ -172,8 +190,7 @@ body::before {
 
     color: white;
 
-    background:
-        rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.10);
 
     transition: 0.3s;
 }
@@ -182,8 +199,7 @@ body::before {
 
 .login-container input::placeholder {
 
-    color:
-        rgba(255,255,255,0.7);
+    color: rgba(255,255,255,0.6);
 }
 
 /* FOCUS */
@@ -194,11 +210,9 @@ body::before {
 
     transform: scale(1.02);
 
-    box-shadow:
-        0 0 15px rgba(56,189,248,0.6);
+    box-shadow: 0 0 15px rgba(56,189,248,0.5);
 
-    background:
-        rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.16);
 }
 
 /* =========================
@@ -224,16 +238,15 @@ body::before {
     transition: 0.3s;
 }
 
-/* BOTÃO ENTRAR — seleciona apenas o button direto, não o link */
+/* BOTÃO ENTRAR */
 
 .login-container > button {
 
-    background:
-        linear-gradient(
-            to right,
-            rgb(56,189,248),
-            rgb(37,99,235)
-        );
+    background: linear-gradient(
+        to right,
+        rgb(56,189,248),
+        rgb(37,99,235)
+    );
 }
 
 /* HOVER */
@@ -242,15 +255,153 @@ body::before {
 
     transform: translateY(-3px);
 
-    box-shadow:
-        0 10px 20px rgba(37,99,235,0.4);
+    box-shadow: 0 10px 20px rgba(37,99,235,0.4);
 }
 
 /* =========================
-   ✅ NOVO: ÁREA DE CADASTRO
+   ESQUECI A SENHA
 ========================= */
 
-/* Linha separadora com texto "Não tem conta?" */
+.esqueci-senha {
+
+    text-align: right;
+    margin-top: -10px;
+}
+
+.esqueci-senha a {
+
+    color: rgba(56,189,248,0.85);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.esqueci-senha a:hover {
+
+    color: rgb(56,189,248);
+    text-decoration: underline;
+}
+
+/* =========================
+   MODAL ESQUECI SENHA
+========================= */
+
+.modal-overlay {
+
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.ativo {
+    display: flex;
+}
+
+.modal-box {
+
+    position: relative;
+    z-index: 101;
+    width: 340px;
+    padding: 40px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.90);
+    border: 1.5px solid rgba(56,189,248,0.25);
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: aparecer 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+
+.modal-box h2 {
+
+    color: white;
+    font-size: 22px;
+    text-align: center;
+    margin: 0;
+}
+
+.modal-box p {
+
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modal-box input {
+
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    color: white;
+    background: rgba(255,255,255,0.10);
+    transition: 0.3s;
+}
+
+.modal-box input::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+.modal-box input:focus {
+    outline: none;
+    box-shadow: 0 0 12px rgba(56,189,248,0.45);
+    background: rgba(255,255,255,0.15);
+}
+
+.modal-box .btn-enviar {
+
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(to right, rgb(56,189,248), rgb(37,99,235));
+    transition: 0.3s;
+}
+
+.modal-box .btn-enviar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37,99,235,0.45);
+}
+
+.modal-box .btn-fechar {
+
+    padding: 12px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-box .btn-fechar:hover {
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+.modal-msg {
+    font-size: 13px;
+    text-align: center;
+    min-height: 18px;
+}
+
+/* =========================
+   ÁREA DE CADASTRO
+========================= */
+
 .cadastro-link {
 
     display: flex;
@@ -258,18 +409,16 @@ body::before {
     justify-content: center;
     gap: 10px;
 
-    /* Linha fina acima para separar do botão Entrar */
-    border-top: 1px solid rgba(255,255,255,0.12);
+    border-top: 1px solid rgba(255,255,255,0.10);
     padding-top: 8px;
 }
 
 .cadastro-link span {
 
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.5);
     font-size: 14px;
 }
 
-/* Botão de cadastro — visual secundário (outline) */
 .btn-cadastro {
 
     display: inline-block;
@@ -277,7 +426,7 @@ body::before {
     padding: 10px 22px;
 
     border-radius: 12px;
-    border: 1.5px solid rgba(56,189,248,0.6);
+    border: 1.5px solid rgba(56,189,248,0.55);
 
     background: transparent;
 
@@ -295,9 +444,9 @@ body::before {
 
 .btn-cadastro:hover {
 
-    background: rgba(56,189,248,0.15);
+    background: rgba(56,189,248,0.12);
     border-color: rgb(56,189,248);
 
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(56,189,248,0.25);
+    box-shadow: 0 6px 16px rgba(56,189,248,0.22);
 }
