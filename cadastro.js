@@ -1,37 +1,17 @@
 function realizarCadastro() {
 
     const nome           = document.getElementById("nome").value.trim();
-    const usuario        = document.getElementById("usuario").value.trim();
-    const email          = document.getElementById("email").value.trim();
     const senha          = document.getElementById("senha").value;
-    const confirmarSenha = document.getElementById("confirmarSenha").value;
     const msg            = document.getElementById("mensagem");
 
     // --- Validações ---
 
-    if (!nome || !usuario || !email || !senha || !confirmarSenha) {
+    if (!nome || !senha || !confirmarSenha) {
         mostrarMensagem("Preencha todos os campos!", "erro");
         return;
     }
-
-    if (usuario.length < 3) {
-        mostrarMensagem("Usuário deve ter pelo menos 3 caracteres.", "erro");
-        return;
-    }
-
-    // Validação básica de e-mail
-    if (!email.includes("@") || !email.includes(".")) {
-        mostrarMensagem("Digite um e-mail válido.", "erro");
-        return;
-    }
-
     if (senha.length < 6) {
         mostrarMensagem("A senha deve ter pelo menos 6 caracteres.", "erro");
-        return;
-    }
-
-    if (senha !== confirmarSenha) {
-        mostrarMensagem("As senhas não coincidem!", "erro");
         return;
     }
 
@@ -39,8 +19,9 @@ function realizarCadastro() {
     // Aqui você pode salvar no localStorage ou enviar para um servidor futuramente
     // Por enquanto, salva localmente e redireciona para o login
 
-    const dados = { nome, usuario, email };
-    localStorage.setItem("cadastro_" + usuario, JSON.stringify(dados));
+    //const dados = { nome, senha, };
+
+   // localStorage.setItem("cadastro_" + usuario, JSON.stringify(dados));
 
     mostrarMensagem("Cadastro realizado! Redirecionando...", "sucesso");
 
