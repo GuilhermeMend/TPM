@@ -29,8 +29,8 @@ async function hashSenha(usuario, senha) {
 async function validarLogin() {
 
     const usuario = document.getElementById("usuario").value.trim();
-    const senha   = document.getElementById("senha").value;
-    const msg     = document.getElementById("mensagem");
+    const senha = document.getElementById("senha").value;
+    const msg = document.getElementById("mensagem");
 
     if (!usuario || !senha) {
         msg.innerText = "Preencha usuário e senha!";
@@ -47,11 +47,35 @@ async function validarLogin() {
         }
     }
 
-    /* LOGIN ALUNO */
+    /* LOGIN ALUNO — verifica no banco de dados */
     else if (tipoSelecionado === "aluno") {
-        // Aluno também precisa preencher os campos (validação básica)
-        // Aqui você pode adicionar lista de alunos válidos futuramente
-        window.location.href = "home.html";
+        msg.style.color = "";
+        msg.innerText = "Verificando...";
+
+        try {
+            const resposta = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome: usuario, senha: senha })
+            });
+
+            const dados = await resposta.json();
+
+            if (dados.sucesso) {
+                // Salva o id do aluno para usar nas outras páginas
+                sessionStorage.setItem("usuario_id", dados.usuario_id);
+                sessionStorage.setItem("usuario_nome", usuario);
+                window.location.href = "home.html";
+            } else {
+                msg.style.color = "red";
+                msg.innerText = dados.mensagem || "Usuário ou senha incorretos.";
+            }
+
+        } catch (erro) {
+            msg.style.color = "red";
+            msg.innerText = "Erro ao conectar com o servidor. Verifique se o app.py está rodando.";
+            console.error(erro);
+        }
     }
 }
 
