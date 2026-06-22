@@ -1,47 +1,61 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import mysql.connector
-import os  # Importante para localizar o arquivo
 
 app = Flask(__name__)
+CORS(app)
 
-def db():
+
+def conectar_banco():
     return mysql.connector.connect(
-        host='localhost', 
-        user='root', 
-        password='lea', 
-        database='agenda', 
-        port=3306,
-        autocommit=True
+        host="localhost",
+        user="root",         
+        password="lea", 
+        database="banco de dados"
     )
 
-@app.route('/')
-def index():
-    try:
-        # Pega o caminho da pasta onde este app.py está localizado
-        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        caminho_index = os.path.join(diretorio_atual, 'index.html')
-        
-        with open(caminho_index, 'r', encoding='utf-8') as f:
-            return render_template_string(f.read())
-    except FileNotFoundError:
-        return f"Arquivo index.html não encontrado no caminho: {caminho_index}"
-
-@app.route('/agendar', methods=['POST'])
-def agendar():
-    d = request.json
-    data_formatada = d['d'].replace('T', ' ')
-    try:
-        con = db()
-        cur = con.cursor()
-        cur.execute("INSERT INTO banco de dados  (nome, senha) VALUES (%s, %s)", \
-                    (d['n'], data_formatada))
-        cur.close()
-        con.close()
-        return jsonify("OK"), 200
-    except Exception as e:
-        return jsonify(str(e)), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
+@app.route('/login', methods=['POST'])
+def login():
+    dados = request.get_json()
+    nome_recebido = dados.get('nome')
+    senha_recebida = dados.get('senha')
     
+    conexao = None
+    cursor = None
+    
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True) 
+        
+        comando_sql = "SELECT id, usuario FROM aluno WHERE nome = %s AND senha = %s"
+        cursor.execute(comando_sql, (nome_recebido, senha_recebida))
+        
+        usuario_encontrado = cursor.fetchone()
+        
+        if usuario_encontrado:
+            return jsonify({
+                "sucesso": True,
+                "mensagem": f"Bem-vindo, {usuario_recebido}! Autenticação realizada.",
+                "usuario_id": usuario_encontrado['id']
+            }), 200
+        else:
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Usuário ou senha incorretos."
+            }), 401
+            
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco de dados: {erro}")
+        return jsonify({
+            "sucesso": False,
+            "mensagem": "Erro interno ao consultar o banco de dados."
+        }), 500
+        
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=5000, debug=True)
