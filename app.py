@@ -27,7 +27,8 @@ def login():
         conexao = conectar_banco()
         cursor = conexao.cursor(dictionary=True) 
         
-        comando_sql = "SELECT id, usuario FROM aluno WHERE nome = %s AND senha = %s"
+        # Colunas corretas: id_aluno e nome (tabela aluno)
+        comando_sql = "SELECT id_aluno, nome FROM aluno WHERE nome = %s AND senha = %s"
         cursor.execute(comando_sql, (nome_recebido, senha_recebida))
         
         usuario_encontrado = cursor.fetchone()
@@ -35,8 +36,8 @@ def login():
         if usuario_encontrado:
             return jsonify({
                 "sucesso": True,
-                "mensagem": f"Bem-vindo, {usuario_recebido}! Autenticação realizada.",
-                "usuario_id": usuario_encontrado['id']
+                "mensagem": f"Bem-vindo, {usuario_encontrado['nome']}! Autenticação realizada.",
+                "usuario_id": usuario_encontrado['id_aluno']
             }), 200
         else:
             return jsonify({
