@@ -1,41 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Cadastro - Anuário Escolar</title>
+
     <link rel="stylesheet" href="cadastro.css">
 </head>
+
 <body>
+
     <div class="login-container">
+
         <h1>Cadastro</h1>
-        <!--Campos-->
+
+        <!-- Nome -->
         <input
             type="text"
             placeholder="Nome completo"
             id="nome"
         >
-       
+
+        <!-- Senha -->
         <input
-            input="password"
+            type="password"
             placeholder="Senha"
             id="senha"
         >
 
-        <!--Mensagem de Erro / Sucesso-->
+        <!-- Mensagem -->
         <h3 id="mensagem"></h3>
 
-        <!--Botão Cadastrar-->
-        <button onclick="realizarCadastro()">
+
+        <!-- Botão -->
+        <button id="btnCadastro">
             Cadastrar
         </button>
-        
-        <!--Voltar para Login-->
+
+
+        <!-- Voltar -->
         <div class="cadastro-link">
+
             <span>Já tem conta?</span>
-            <a href="login.html" class="btn-voltar">Entrar</a>
+
+            <a href="login.html" class="btn-voltar">
+                Entrar
+            </a>
+
         </div>
+
     </div>
+
+
     <script src="Cadastro.js"></script>
+
 </body>
+
 </html>

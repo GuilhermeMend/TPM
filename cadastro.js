@@ -1,43 +1,85 @@
-function realizarCadastro() {
+document.getElementById("btnCadastro").addEventListener("click", async function () {
 
-    const nome           = document.getElementById("nome").value.trim();
-    const senha          = document.getElementById("senha").value;
-    const msg            = document.getElementById("mensagem");
 
-    // --- Validações ---
+    const nome = document.getElementById("nome").value;
+    const senha = document.getElementById("senha").value;
 
-    if (!nome || !senha || !confirmarSenha) {
-        mostrarMensagem("Preencha todos os campos!", "erro");
+    const mensagem = document.getElementById("mensagem");
+
+
+    if(nome === "" || senha === ""){
+
+        mensagem.innerHTML = "Preencha todos os campos.";
+        mensagem.style.color = "red";
+
         return;
     }
-    if (senha.length < 6) {
-        mostrarMensagem("A senha deve ter pelo menos 6 caracteres.", "erro");
-        return;
+
+
+    try {
+
+
+        const resposta = await fetch("http://localhost:5000/cadastro", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+
+            body: JSON.stringify({
+
+                nome: nome,
+                senha: senha
+
+            })
+
+        });
+
+
+
+        const dados = await resposta.json();
+
+
+
+        if(resposta.ok){
+
+
+            mensagem.innerHTML = "Cadastro realizado com sucesso!";
+            mensagem.style.color = "green";
+
+
+            setTimeout(() => {
+
+                window.location.href = "login.html";
+
+            }, 1000);
+
+
+
+        } else {
+
+
+            mensagem.innerHTML = dados.mensagem;
+            mensagem.style.color = "red";
+
+
+        }
+
+
+
+    } catch(erro){
+
+
+        console.error(erro);
+
+
+        mensagem.innerHTML = "Erro ao conectar com o servidor.";
+        mensagem.style.color = "red";
+
+
     }
 
-    // --- Cadastro OK ---
-    // Aqui você pode salvar no localStorage ou enviar para um servidor futuramente
-    // Por enquanto, salva localmente e redireciona para o login
 
-    //const dados = { nome, senha, };
-
-   // localStorage.setItem("cadastro_" + usuario, JSON.stringify(dados));
-
-    mostrarMensagem("Cadastro realizado! Redirecionando...", "sucesso");
-
-    // Redireciona para o login após 1.5 segundos
-    setTimeout(function () {
-        window.location.href = "login.html";
-    }, 1500);
-}
-
-function mostrarMensagem(texto, tipo) {
-    const msg = document.getElementById("mensagem");
-    msg.innerText = texto;
-    msg.style.color = tipo === "sucesso" ? "rgb(74, 222, 128)" : "rgb(252, 165, 165)";
-}
-
-// Permitir Enter para cadastrar
-document.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") realizarCadastro();
 });
