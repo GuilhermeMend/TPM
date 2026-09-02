@@ -100,47 +100,6 @@
         </section>
 
         <!-- ========================
-             ALUNOS
-        ======================== -->
-        <section class="secao secao-clara" id="alunos">
-
-            <div class="secao-header">
-                <h2>Alunos</h2>
-                <p>Adicione, edite ou remova alunos cadastrados</p>
-            </div>
-
-            <div class="tabela-wrap">
-                <div class="tabela-topo">
-                    <span>Lista de Alunos</span>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                        <div class="filtros">
-                            <button class="filtro ativo" onclick="filtrar(this,'todos')">Todos</button>
-                            <button class="filtro" onclick="filtrar(this,'ativo')">Ativo</button>
-                            <button class="filtro" onclick="filtrar(this,'destaque')">Destaque</button>
-                        </div>
-                        <button class="btn-adicionar-sm" onclick="abrirModalAluno()">+ Adicionar aluno</button>
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Matrícula</th>
-                            <th>Turma</th>
-                            <th>Status</th>
-                            <th>Turno</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-alunos">
-                        <!-- Alunos gerados via JS -->
-                    </tbody>
-                </table>
-            </div>
-
-        </section>
-
-        <!-- ========================
              AVISOS / FORMULÁRIO
         ======================== -->
         <section class="secao" id="avisos">
