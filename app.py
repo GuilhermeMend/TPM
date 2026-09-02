@@ -349,6 +349,137 @@ def login_gestao():
 
 
 
+# ================= LISTAR TURMAS =================
+#
+# Rota: GET /api/turmas
+# Pra que serve: devolve a lista de nomes de turma que existem de verdade
+# na tabela `turmas` (ex: ["3_ano_B"]). É o que o front (home.js/gestao.js)
+# usa pra criar um botão pra cada turma.
+#
+# DISTINCT: como cada linha da tabela `turmas` é 1 aluno, o mesmo valor de
+# turma se repete várias vezes (um por aluno). DISTINCT tira as repetições
+# e deixa só os nomes de turma únicos.
+
+@app.route('/api/turmas', methods=['GET'])
+def listar_turmas():
+
+    conexao = None
+    cursor = None
+
+    try:
+
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        # Busca os nomes de turma distintos cadastrados na tabela turmas
+        cursor.execute("SELECT DISTINCT turma FROM turmas ORDER BY turma")
+
+        linhas = cursor.fetchall()
+        # cada "linha" é um dicionário tipo {'turma': '3_ano_B'} — aqui a
+        # gente pega só o valor da chave 'turma' de cada um e joga numa lista
+        turmas_lista = [linha['turma'] for linha in linhas]
+
+        return jsonify({
+
+            "sucesso": True,
+
+            "turmas": turmas_lista
+
+        }), 200
+
+    except mysql.connector.Error as erro:
+
+        print(f"Erro no banco: {erro}")
+
+        return jsonify({
+
+            "sucesso": False,
+
+            "mensagem": "Erro ao buscar turmas."
+
+        }), 500
+
+    finally:
+
+        # sempre fecha cursor/conexão, mesmo se deu erro acima —
+        # senão fica conexão aberta "penduradas" no banco
+        if cursor:
+            cursor.close()
+
+        if conexao:
+            conexao.close()
+
+
+
+# ================= LISTAR ALUNOS DE UMA TURMA =================
+#
+# Rota: GET /api/turmas/<turma>/alunos
+# Exemplo real: GET /api/turmas/3_ano_B/alunos
+# Pra que serve: devolve todos os alunos daquela turma específica —
+# id_aluno, ra_aluno e nome_aluno. Tanto a página do aluno (home.js) quanto
+# a da gestão (gestao.js) chamam essa MESMA rota; a diferença de mostrar
+# ou não o RA acontece só no front, na hora de montar o HTML — o back
+# manda o RA sempre, e cada página decide se usa ou ignora esse dado.
+#
+# <turma> na URL vira o parâmetro `turma` da função automaticamente
+# (é o "conversor de rota" do Flask).
+
+@app.route('/api/turmas/<turma>/alunos', methods=['GET'])
+def listar_alunos_da_turma(turma):
+
+    conexao = None
+    cursor = None
+
+    try:
+
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        # %s é um placeholder — o mysql-connector troca ele pelo valor de
+        # forma segura (evita SQL Injection). NUNCA monte a query colando
+        # a variável direto na string (tipo f"... = '{turma}'").
+        cursor.execute(
+            """
+            SELECT id_aluno, ra_aluno, nome_aluno
+            FROM turmas
+            WHERE turma = %s
+            ORDER BY nome_aluno
+            """,
+            (turma,)
+        )
+
+        alunos_lista = cursor.fetchall()
+
+        return jsonify({
+
+            "sucesso": True,
+
+            "alunos": alunos_lista
+
+        }), 200
+
+    except mysql.connector.Error as erro:
+
+        print(f"Erro no banco: {erro}")
+
+        return jsonify({
+
+            "sucesso": False,
+
+            "mensagem": "Erro ao buscar alunos da turma."
+
+        }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conexao:
+            conexao.close()
+
+
+
 
 # ================= INICIAR SERVIDOR =================
 

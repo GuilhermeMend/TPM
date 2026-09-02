@@ -400,6 +400,92 @@ nav a.ativo-nav {
 /* =========================
    BOTÕES ADICIONAR
 ========================= */
+.turmas-botoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.btn-turma-dyn {
+    padding: 10px 22px;
+    border-radius: 100px;
+    border: none;
+    background: #06091a;
+    color: #fff;
+    font-family: 'Outfit', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.btn-turma-dyn:hover {
+    opacity: 0.85;
+}
+
+.btn-turma-dyn.ativo {
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(6,9,26,0.25);
+}
+
+.turma-alunos-painel {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    min-height: 90px;
+}
+
+.turma-alunos-vazio {
+    text-align: center;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.turma-painel-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.turma-painel-topo h3 {
+    margin: 0;
+}
+
+.turma-aluno-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 500;
+}
+
+.turma-aluno-item:last-child {
+    border-bottom: none;
+}
+
+/* Bloco com nome em cima e RA embaixo (só existe na página de gestão) */
+.turma-aluno-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.turma-aluno-ra {
+    font-size: 12px;
+    font-weight: 400;
+    color: #64748b;
+}
+
 .btn-adicionar {
     padding: 12px 32px;
     background: #06091a;

@@ -84,117 +84,17 @@
 
             <div class="secao-header">
                 <h2>Turmas</h2>
-                <p>Selecione uma turma para ver alunos e fotos</p>
+                <p>Clique em uma turma para ver os alunos</p>
             </div>
 
-            <div class="cards">
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #1d4ed8, #60a5fa);">
-                        <span class="card-num">1A</span>
-                        <span class="card-tag">1º Ano A</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>1º Ano A — Manhã</h3>
-                        <p>Prof. responsável: Ana Lima</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#3b82f6">M</div>
-                            <div class="av" style="background:#8b5cf6">L</div>
-                            <div class="av" style="background:#ec4899">J</div>
-                            <div class="av" style="background:#f59e0b">R</div>
-                            <span class="av-mais">+31</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
-                        <span class="card-num">2B</span>
-                        <span class="card-tag">2º Ano B</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>2º Ano B — Manhã</h3>
-                        <p>Prof. responsável: Carlos Mendes</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#a855f7">F</div>
-                            <div class="av" style="background:#ec4899">B</div>
-                            <div class="av" style="background:#3b82f6">G</div>
-                            <span class="av-mais">+33</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #059669, #34d399);">
-                        <span class="card-num">3A</span>
-                        <span class="card-tag">3º Ano A</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>3º Ano A — Manhã</h3>
-                        <p>Prof. responsável: Beatriz Souza</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#10b981">J</div>
-                            <div class="av" style="background:#3b82f6">P</div>
-                            <div class="av" style="background:#f59e0b">C</div>
-                            <div class="av" style="background:#ec4899">V</div>
-                            <span class="av-mais">+30</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #dc2626, #f87171);">
-                        <span class="card-num">3B</span>
-                        <span class="card-tag">3º Ano B</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>3º Ano B — Manhã</h3>
-                        <p>Prof. responsável: Roberto Alves</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#ef4444">A</div>
-                            <div class="av" style="background:#8b5cf6">H</div>
-                            <div class="av" style="background:#06b6d4">N</div>
-                            <span class="av-mais">+32</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #d97706, #fbbf24);">
-                        <span class="card-num">2A</span>
-                        <span class="card-tag">2º Ano A</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>2º Ano A — Manhã</h3>
-                        <p>Prof. responsável: Luciana Ferraz</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#f59e0b">T</div>
-                            <div class="av" style="background:#3b82f6">S</div>
-                            <div class="av" style="background:#10b981">D</div>
-                            <div class="av" style="background:#ec4899">E</div>
-                            <span class="av-mais">+34</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-turma">
-                    <div class="card-topo" style="background: linear-gradient(135deg, #0891b2, #22d3ee);">
-                        <span class="card-num">1B</span>
-                        <span class="card-tag">1º Ano B</span>
-                    </div>
-                    <div class="card-corpo">
-                        <h3>1º Ano B — Manhã</h3>
-                        <p>Prof. responsável: Marcos Vieira</p>
-                        <div class="aluno-avatares">
-                            <div class="av" style="background:#06b6d4">I</div>
-                            <div class="av" style="background:#8b5cf6">K</div>
-                            <div class="av" style="background:#ef4444">W</div>
-                            <span class="av-mais">+30</span>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="turmas-botoes" id="turmas-botoes">
+                <p class="turma-alunos-vazio">Carregando turmas...</p>
             </div>
+
+            <div class="turma-alunos-painel" id="turma-alunos-painel">
+                <p class="turma-alunos-vazio">Selecione uma turma acima para ver os alunos.</p>
+            </div>
+
         </section>
 
         <!-- ========================
