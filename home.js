@@ -1,124 +1,169 @@
-// =====================
-// Turmas e alunos (conectado ao banco de dados)
-// =====================
-
-// URL base do back-end Flask. Toda vez que precisamos de dado real
-// (turmas, alunos de uma turma), fazemos fetch pra essa URL.
 const API_BASE = "http://localhost:5000";
 
-// async = a função pode "pausar" num await sem travar a página, até a
-// resposta da requisição chegar.
-async function carregarTurmas() {
+document.addEventListener("DOMContentLoaded", () => {
+    carregarTurmasBotoesHome();
+    carregarFotosAluno();
+});
+
+async function carregarTurmasBotoesHome() {
     const container = document.getElementById('turmas-botoes');
+    if (!container) return;
 
     try {
-        // Pede pro Flask (rota /api/turmas do app.py) a lista de turmas
         const resposta = await fetch(`${API_BASE}/api/turmas`);
-        // Converte a resposta (JSON em texto) pra objeto/array do JS
         const dados = await resposta.json();
 
         if (!dados.sucesso || dados.turmas.length === 0) {
-            container.innerHTML = '<p class="turma-alunos-vazio">Nenhuma turma cadastrada ainda.</p>';
+            container.innerHTML = '<p class="turma-alunos-vazio">Nenhuma turma cadastrada.</p>';
             return;
         }
 
         container.innerHTML = '';
-        // Cria um botão pra cada turma que veio do banco
         dados.turmas.forEach(turma => {
             const btn = document.createElement('button');
             btn.className = 'btn-turma';
             btn.textContent = formatarNomeTurma(turma);
-            btn.onclick = () => mostrarAlunosTurma(turma, btn);
+            btn.onclick = () => mostrarAlunosTurmaHome(turma, btn);
             container.appendChild(btn);
         });
-
     } catch (erro) {
-        // cai aqui se o Flask estiver desligado, por exemplo
         console.error('Erro ao carregar turmas:', erro);
-        container.innerHTML = '<p class="turma-alunos-vazio">Não foi possível carregar as turmas.</p>';
+        container.innerHTML = '<p class="turma-alunos-vazio">Erro ao carregar turmas.</p>';
     }
 }
 
-// Deixa o nome da turma bonito pra exibir: "3_ano_B" -> "3 Ano B"
 function formatarNomeTurma(turma) {
     return turma.replace(/_/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
 }
 
-// Pega as duas primeiras iniciais do nome pro "avatar" redondo
 function iniciaisDoNome(nome) {
     return nome.trim().split(/\s+/).slice(0, 2).map(parte => parte[0].toUpperCase()).join('');
 }
 
-async function mostrarAlunosTurma(turma, btn) {
+async function mostrarAlunosTurmaHome(turma, btn) {
     document.querySelectorAll('.btn-turma').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
+    if (btn) btn.classList.add('ativo');
 
     const painel = document.getElementById('turma-alunos-painel');
     painel.innerHTML = '<p class="turma-alunos-vazio">Carregando alunos...</p>';
 
     try {
-        // encodeURIComponent evita problema se a turma tiver espaço/acento na URL
         const resposta = await fetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
         const dados = await resposta.json();
 
         if (!dados.sucesso || dados.alunos.length === 0) {
-            painel.innerHTML = '<p class="turma-alunos-vazio">Nenhum aluno cadastrado nesta turma ainda.</p>';
+            painel.innerHTML = '<p class="turma-alunos-vazio">Nenhum aluno nesta turma.</p>';
             return;
         }
 
-        // PÁGINA DO ALUNO: mostramos só o nome de cada colega, de propósito
-        // sem o RA (a.ra_aluno existe na resposta da API, mas não usamos
-        // aqui). Quem precisa ver o RA é a gestão (gestao.js).
-        painel.innerHTML = dados.alunos.map(a => `
-            <div class="turma-aluno-item">
-                <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
-                ${a.nome_aluno}
+        painel.innerHTML = `
+            <div style="margin-bottom:12px;">
+                <h3 style="margin:0; font-family:'Playfair Display', serif;">${formatarNomeTurma(turma)}</h3>
             </div>
-        `).join('');
-
+            ${dados.alunos.map(a => `
+                <div class="turma-aluno-item">
+                    <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
+                    <span>${a.nome_aluno}</span>
+                </div>
+            `).join('')}
+        `;
     } catch (erro) {
-        console.error('Erro ao carregar alunos da turma:', erro);
-        painel.innerHTML = '<p class="turma-alunos-vazio">Não foi possível carregar os alunos.</p>';
+        console.error('Erro ao carregar alunos:', erro);
+        painel.innerHTML = '<p class="turma-alunos-vazio">Erro ao carregar alunos.</p>';
     }
 }
 
-document.addEventListener('DOMContentLoaded', carregarTurmas);
+async function carregarFotosAluno() {
+    const galeria = document.getElementById('foto-galeria');
+    if (!galeria) return;
 
-// =====================
-// Filtros da tabela de alunos
-// =====================
-function filtrar(btn) {
-    document.querySelectorAll('.filtro').forEach(b => b.classList.remove('ativo'));
-    btn.classList.add('ativo');
-}
+    galeria.innerHTML = '<p class="turma-alunos-vazio">Carregando galeria...</p>';
 
-// =====================
-// Confirmação de envio do contato
-// =====================
-function enviarMensagem() {
-    const confirmacao = document.getElementById('msg-confirmacao');
-    confirmacao.style.display = 'block';
-    setTimeout(() => {
-        confirmacao.style.display = 'none';
-    }, 3500);
-}
+    try {
+        const resposta = await fetch(`${API_BASE}/api/fotos`);
+        const dados = await resposta.json();
 
-// =====================
-// Destaca link ativo no nav ao rolar
-// =====================
-const secoes = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('nav a');
-
-window.addEventListener('scroll', () => {
-    let atual = '';
-    secoes.forEach(s => {
-        if (window.scrollY >= s.offsetTop - 100) {
-            atual = s.id;
+        if (!dados.sucesso || dados.fotos.length === 0) {
+            galeria.innerHTML = '<p class="turma-alunos-vazio">Nenhuma foto encontrada.</p>';
+            return;
         }
-    });
-    navLinks.forEach(a => {
-        a.style.color = a.getAttribute('href') === '#' + atual
-            ? '#f0cc72'
-            : 'rgba(255,255,255,0.7)';
-    });
-});
+
+        galeria.innerHTML = '';
+        for (const f of dados.fotos) {
+            const card = document.createElement('div');
+            card.className = 'foto-card';
+            card.innerHTML = `
+                <img src="${API_BASE}${f.url}" alt="${f.legenda || 'Foto'}" loading="lazy">
+                <div class="foto-card-corpo">
+                    <p class="foto-card-legenda">${f.legenda || ''}</p>
+                    <div class="comentarios-secao" id="comentarios-box-${f.id_foto}">
+                        <p style="font-size:12px; color:#94a3b8;">Carregando comentários...</p>
+                    </div>
+                    <div class="comentario-input-wrap">
+                        <input type="text" id="input-comentario-${f.id_foto}" placeholder="Escreva um comentário...">
+                        <button onclick="enviarComentario(${f.id_foto})">Enviar</button>
+                    </div>
+                </div>
+            `;
+            galeria.appendChild(card);
+            carregarComentarios(f.id_foto);
+        }
+    } catch (erro) {
+        console.error('Erro ao carregar fotos:', erro);
+        galeria.innerHTML = '<p class="turma-alunos-vazio">Erro ao carregar fotos.</p>';
+    }
+}
+
+async function carregarComentarios(idFoto) {
+    const box = document.getElementById(`comentarios-box-${idFoto}`);
+    if (!box) return;
+
+    try {
+        const resposta = await fetch(`${API_BASE}/api/fotos/${idFoto}/comentarios`);
+        const dados = await resposta.json();
+
+        if (!dados.sucesso || dados.comentarios.length === 0) {
+            box.innerHTML = '<p style="font-size:12px; color:#94a3b8;">Nenhum comentário ainda.</p>';
+            return;
+        }
+
+        box.innerHTML = dados.comentarios.map(c => `
+            <div class="comentario-item">
+                <strong>${c.nome_aluno}:</strong> <span>${c.texto}</span>
+            </div>
+        `).join('');
+    } catch (erro) {
+        console.error('Erro ao carregar comentários:', erro);
+    }
+}
+
+async function enviarComentario(idFoto) {
+    const input = document.getElementById(`input-comentario-${idFoto}`);
+    const texto = input.value.trim();
+    const alunoId = sessionStorage.getItem('usuario_id');
+
+    if (!alunoId) {
+        alert('Faça login como aluno para comentar.');
+        return;
+    }
+
+    if (!texto) return;
+
+    try {
+        const resposta = await fetch(`${API_BASE}/api/fotos/${idFoto}/comentarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ aluno_id: alunoId, texto })
+        });
+        const dados = await resposta.json();
+
+        if (dados.sucesso) {
+            input.value = '';
+            carregarComentarios(idFoto);
+        } else {
+            alert(dados.mensagem || 'Erro ao publicar comentário.');
+        }
+    } catch (erro) {
+        console.error('Erro ao enviar comentário:', erro);
+    }
+}

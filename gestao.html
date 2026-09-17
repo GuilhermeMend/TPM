@@ -24,6 +24,7 @@
         <nav>
             <a href="#painel">Painel</a>
             <a href="#turmas">Turmas</a>
+            <a href="#fotos">Fotos</a>
             <a href="#avisos">Avisos</a>
         </nav>
 
@@ -94,6 +95,38 @@
                 <button class="btn-adicionar" onclick="abrirModalTurma()">
                     + Adicionar turma
                 </button>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             FOTOS
+        ======================== -->
+        <section class="secao" id="fotos">
+
+            <div class="secao-header">
+                <h2>Fotos</h2>
+                <p>Publique fotos para os alunos verem e comentarem</p>
+            </div>
+
+            <div class="card foto-upload-card">
+                <h3>Nova foto</h3>
+                <div class="campo">
+                    <label>Imagem</label>
+                    <input type="file" id="foto-arquivo" accept="image/png, image/jpeg, image/gif, image/webp">
+                </div>
+                <div class="campo">
+                    <label>Legenda</label>
+                    <input type="text" id="foto-legenda" placeholder="Ex: Festa Junina 2026">
+                </div>
+                <button class="btn-enviar" onclick="publicarFoto()">
+                    Publicar foto →
+                </button>
+                <p id="foto-msg" style="font-weight:600; display:none; margin-top:10px; text-align:center;"></p>
+            </div>
+
+            <div class="foto-galeria" id="foto-galeria">
+                <p class="turma-alunos-vazio">Carregando fotos...</p>
             </div>
 
         </section>

@@ -12,258 +12,62 @@
 
 <body>
 
-    <!-- ========================
-         HEADER
-    ======================== -->
     <header>
-
         <div class="header-logo">
             <span class="logo-icon">🎓</span>
             <h1>Anuário Escolar</h1>
         </div>
 
         <nav>
-            <a href="#inicio">Início</a>
             <a href="#turmas">Turmas</a>
-            <a href="#professores">Professores</a>
-            <a href="#contato">Contato</a>
+            <a href="#fotos">Galeria</a>
         </nav>
 
         <button class="btn-sair" onclick="window.location.href='login.html'">
             Sair
         </button>
-
     </header>
 
     <main>
-
-        <!-- ========================
-             BANNER / HERO
-        ======================== -->
-        <section class="banner" id="inicio">
-
+        <section class="banner">
             <div class="banner-content">
-                <div class="banner-badge">✦ Bem-vindo ao Anuário 2026 ✦</div>
-                <h2>Recordações, fotos e<br>momentos especiais da turma.</h2>
-                <p>Um espaço dedicado a preservar cada memória deste ano letivo.</p>
-                <a href="#turmas" class="banner-btn">Explorar o anuário</a>
-            </div>
-
-        </section>
-
-        <!-- ========================
-             STATS
-        ======================== -->
-        <section class="stats">
-            <div class="stat-item">
-                <span class="stat-num">12</span>
-                <span class="stat-label">Turmas</span>
-            </div>
-            <div class="stat-div"></div>
-            <div class="stat-item">
-                <span class="stat-num">38</span>
-                <span class="stat-label">Professores</span>
-            </div>
-            <div class="stat-div"></div>
-            <div class="stat-item">
-                <span class="stat-num">420</span>
-                <span class="stat-label">Alunos</span>
-            </div>
-            <div class="stat-div"></div>
-            <div class="stat-item">
-                <span class="stat-num">24</span>
-                <span class="stat-label">Eventos</span>
+                <div class="banner-badge">✦ Memórias 2026 ✦</div>
+                <h2>Explore as turmas e<br>recordações do ano escolar.</h2>
+                <p>Veja as fotos enviadas pela gestão e deixe seus comentários.</p>
             </div>
         </section>
 
-        <!-- ========================
-             TURMAS
-        ======================== -->
         <section class="secao" id="turmas">
-
             <div class="secao-header">
                 <h2>Turmas</h2>
-                <p>Clique em uma turma para ver os alunos</p>
+                <p>Selecione uma turma para ver seus colegas</p>
             </div>
 
             <div class="turmas-botoes" id="turmas-botoes">
-                <p class="turma-alunos-vazio">Carregando turmas...</p>
+                <!-- Botões populados pelo JavaScript -->
             </div>
 
             <div class="turma-alunos-painel" id="turma-alunos-painel">
                 <p class="turma-alunos-vazio">Selecione uma turma acima para ver os alunos.</p>
             </div>
-
         </section>
 
-        <!-- ========================
-             PROFESSORES
-        ======================== -->
-        <section class="secao secao-clara" id="professores">
-
+        <section class="secao secao-clara" id="fotos">
             <div class="secao-header">
-                <h2>Professores</h2>
-                <p>Corpo docente do ano letivo 2026</p>
+                <h2>Galeria de Fotos</h2>
+                <p>Confira e comente as publicações do anuário</p>
             </div>
 
-            <div class="cards">
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#1d4ed8,#60a5fa)">AL</div>
-                    <h3>Ana Lima</h3>
-                    <span class="prof-materia">Matemática</span>
-                    <span class="prof-tag" style="background:#eff6ff; color:#1e40af">1º e 2º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#7c3aed,#c084fc)">CM</div>
-                    <h3>Carlos Mendes</h3>
-                    <span class="prof-materia">Português</span>
-                    <span class="prof-tag" style="background:#f5f3ff; color:#6d28d9">2º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#059669,#6ee7b7)">BS</div>
-                    <h3>Beatriz Souza</h3>
-                    <span class="prof-materia">Ciências</span>
-                    <span class="prof-tag" style="background:#f0fdf4; color:#166534">3º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#dc2626,#fca5a5)">RA</div>
-                    <h3>Roberto Alves</h3>
-                    <span class="prof-materia">História</span>
-                    <span class="prof-tag" style="background:#fef2f2; color:#991b1b">3º e 4º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#d97706,#fde68a)">LF</div>
-                    <h3>Luciana Ferraz</h3>
-                    <span class="prof-materia">Geografia</span>
-                    <span class="prof-tag" style="background:#fffbeb; color:#92400e">4º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#0891b2,#67e8f9)">MV</div>
-                    <h3>Marcos Vieira</h3>
-                    <span class="prof-materia">Ed. Física</span>
-                    <span class="prof-tag" style="background:#ecfeff; color:#155e75">Todas as Turmas</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#be185d,#f9a8d4)">PC</div>
-                    <h3>Patrícia Costa</h3>
-                    <span class="prof-materia">Inglês</span>
-                    <span class="prof-tag" style="background:#fdf2f8; color:#9d174d">2º ao 4º Ano</span>
-                </div>
-
-                <div class="card card-prof">
-                    <div class="prof-avatar" style="background: linear-gradient(135deg,#0f766e,#5eead4)">FR</div>
-                    <h3>Felipe Rocha</h3>
-                    <span class="prof-materia">Arte</span>
-                    <span class="prof-tag" style="background:#f0fdfa; color:#134e4a">Todas as Turmas</span>
-                </div>
-
+            <div class="foto-galeria" id="foto-galeria">
+                <p class="turma-alunos-vazio">Carregando fotos...</p>
             </div>
         </section>
-
-        <!-- ========================
-             CONTATO
-        ======================== -->
-        <section class="secao secao-clara" id="contato">
-
-            <div class="secao-header">
-                <h2>Contato</h2>
-                <p>Fale com a secretaria ou administração da escola</p>
-            </div>
-
-            <div class="contato-grid">
-
-                <!-- Formulário -->
-                <div class="card contato-form">
-                    <h3>Enviar mensagem</h3>
-                    <p>Preencha e entraremos em contato em breve</p>
-
-                    <div class="campo">
-                        <label>Seu nome</label>
-                        <input type="text" placeholder="Nome completo">
-                    </div>
-                    <div class="campo">
-                        <label>E-mail</label>
-                        <input type="email" placeholder="email@exemplo.com">
-                    </div>
-                    <div class="campo">
-                        <label>Assunto</label>
-                        <select>
-                            <option>Selecione um assunto</option>
-                            <option>Dúvida sobre o anuário</option>
-                            <option>Informações sobre turmas</option>
-                            <option>Solicitação de foto</option>
-                            <option>Outros</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label>Mensagem</label>
-                        <textarea placeholder="Escreva sua mensagem..."></textarea>
-                    </div>
-                    <button class="btn-enviar" onclick="enviarMensagem()">
-                        Enviar mensagem →
-                    </button>
-                    <p id="msg-confirmacao" style="color:#16a34a; font-weight:600; display:none; margin-top:10px; text-align:center;">
-                        ✓ Mensagem enviada com sucesso!
-                    </p>
-                </div>
-
-                <!-- Informações -->
-                <div class="contato-infos">
-
-                    <div class="info-item">
-                        <div class="info-icon" style="background:#eff6ff">📍</div>
-                        <div>
-                            <h4>Endereço</h4>
-                            <p>Rua das Flores, 123 — Centro<br>São Paulo, SP · CEP 01000-000</p>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon" style="background:#f0fdf4">📞</div>
-                        <div>
-                            <h4>Telefone</h4>
-                            <p>(11) 3000-0000<br>Seg a Sex · 7h às 16h</p>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon" style="background:#fefce8">✉️</div>
-                        <div>
-                            <h4>E-mail</h4>
-                            <p>secretaria@escola2026.edu.br</p>
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-icon" style="background:#fdf4ff">🕐</div>
-                        <div>
-                            <h4>Horário de funcionamento</h4>
-                            <p>Segunda a Sexta: 7h – 16h</p>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
     </main>
 
-    <!-- ========================
-         FOOTER
-    ======================== -->
     <footer>
         <p>© 2026 · Anuário Escolar · Todos os direitos reservados</p>
     </footer>
 
     <script src="home.js"></script>
-
 </body>
 </html>
