@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import mysql.connector
 import os
 import uuid
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +18,64 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 def extensao_permitida(nome_arquivo):
     return '.' in nome_arquivo and \
         nome_arquivo.rsplit('.', 1)[1].lower() in EXTENSOES_PERMITIDAS
+
+# ================= MODERAÇÃO DE IMAGEM (API DE RECONHECIMENTO) =================
+#
+# Usa a API da Sightengine (sightengine.com) pra analisar a foto ANTES de
+# publicar. Ela devolve uma nota de 0 a 1 pra cada categoria de conteúdo
+# impróprio (nudez, ofensivo, violência/sangue). Se alguma nota passar do
+# LIMITE_MODERACAO, a foto é rejeitada e não entra no banco.
+#
+# Crie uma conta grátis em https://sightengine.com/ (não pede cartão) e
+# cole suas chaves aqui embaixo — ficam na aba "API credentials" do painel.
+SIGHTENGINE_API_USER = "SUA_API_USER_AQUI"
+SIGHTENGINE_API_SECRET = "SUA_API_SECRET_AQUI"
+LIMITE_MODERACAO = 0.5  # 0 a 1 — quanto menor, mais rigorosa a moderação
+
+def moderar_imagem(caminho_arquivo):
+    # Manda a imagem pra API de reconhecimento de conteúdo e devolve
+    # (aprovada: bool, motivo: str ou None). Se a API falhar (chave
+    # errada, sem internet, etc.) deixa a foto passar em vez de travar
+    # o site — só avisa no terminal do Flask.
+    try:
+        with open(caminho_arquivo, 'rb') as imagem:
+            resposta = requests.post(
+                'https://api.sightengine.com/1.0/check.json',
+                files={'media': imagem},
+                data={
+                    'models': 'nudity-2.1,offensive,gore',
+                    'api_user': SIGHTENGINE_API_USER,
+                    'api_secret': SIGHTENGINE_API_SECRET
+                },
+                timeout=10
+            )
+        resultado = resposta.json()
+
+        if resultado.get('status') != 'success':
+            print(f"Aviso: API de moderação não respondeu corretamente: {resultado}")
+            return True, None
+
+        nudez = resultado.get('nudity', {})
+        nota_nudez = max(
+            nudez.get('sexual_activity', 0),
+            nudez.get('sexual_display', 0),
+            nudez.get('erotica', 0)
+        )
+        nota_ofensivo = resultado.get('offensive', {}).get('prob', 0)
+        nota_violencia = resultado.get('gore', {}).get('prob', 0)
+
+        if nota_nudez >= LIMITE_MODERACAO:
+            return False, "conteúdo impróprio (nudez)"
+        if nota_ofensivo >= LIMITE_MODERACAO:
+            return False, "conteúdo ofensivo"
+        if nota_violencia >= LIMITE_MODERACAO:
+            return False, "conteúdo violento"
+
+        return True, None
+
+    except Exception as erro:
+        print(f"Erro ao consultar a API de moderação: {erro}")
+        return True, None
 
 def conectar_banco():
     return mysql.connector.connect(
@@ -173,6 +232,18 @@ def publicar_foto():
 
     caminho_completo = os.path.join(PASTA_UPLOADS, nome_no_disco)
     arquivo.save(caminho_completo)
+
+    # Antes de gravar no banco, manda a imagem pra API de reconhecimento
+    # de conteúdo. Se for reprovada, apaga o arquivo e nem chega a
+    # conectar no banco.
+    aprovada, motivo = moderar_imagem(caminho_completo)
+    if not aprovada:
+        if os.path.exists(caminho_completo):
+            os.remove(caminho_completo)
+        return jsonify({
+            "sucesso": False,
+            "mensagem": f"Foto rejeitada pela moderação automática: {motivo}."
+        }), 422
 
     conexao = None
     cursor = None
