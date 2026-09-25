@@ -1,3 +1,7 @@
+// =====================
+// DADOS INICIAIS
+// =====================
+
 const coresTurma = [
     'linear-gradient(135deg,#1d4ed8,#60a5fa)',
     'linear-gradient(135deg,#7c3aed,#a855f7)',
@@ -37,50 +41,83 @@ let filtroAtual = 'todos';
 let proximoIdAluno = 9;
 let proximoIdTurma = 7;
 
+// URL base do back-end (Flask). Toda vez que o front precisa de um dado
+// que só existe no banco (turmas, alunos de uma turma...), ele faz uma
+// requisição pra essa URL em vez de usar os arrays de exemplo acima.
 const API_BASE = "http://localhost:5000";
 
+// =====================
+// RENDER TURMAS (botões)
+// =====================
+
+// Função "guarda-chuva": atualiza tudo que depende de turma nessa página.
+// atualizarStats() e popularSelectTurma() continuam usando o array de
+// exemplo `turmas` (não mexi neles). Só os botões de turma (carregarTurmasBotoes)
+// é que agora vêm do banco de dados de verdade.
 function renderTurmas() {
     atualizarStats();
     popularSelectTurma();
     carregarTurmasBotoes();
 }
 
+// async = essa função pode "pausar" enquanto espera algo demorado (tipo uma
+// requisição de rede) sem travar o resto da página. Toda vez que tem um
+// "await" dentro dela, o JS espera aquela linha terminar antes de seguir.
 async function carregarTurmasBotoes() {
     const container = document.getElementById('turmas-botoes');
 
     try {
+        // fetch() faz a requisição HTTP pro Flask (rota /api/turmas do app.py).
+        // await pausa aqui até a resposta chegar.
         const resposta = await fetch(`${API_BASE}/api/turmas`);
+
+        // .json() transforma o corpo da resposta (que vem como texto) em
+        // objeto/array do JavaScript. Também é assíncrono, por isso o await.
         const dados = await resposta.json();
 
+        // dados.sucesso vem do jsonify({"sucesso": True/False, ...}) do app.py
         if (!dados.sucesso || dados.turmas.length === 0) {
             container.innerHTML = '<p class="turma-alunos-vazio">Nenhuma turma cadastrada ainda.</p>';
             return;
         }
 
         container.innerHTML = '';
+
+        // Cria um botão pra cada turma que veio do banco
         dados.turmas.forEach(turma => {
             const btn = document.createElement('button');
             btn.className = 'btn-turma-dyn';
             btn.textContent = formatarNomeTurma(turma);
+            // Ao clicar, chama mostrarAlunosTurma passando o nome exato da
+            // turma como está no banco (ex: "3_ano_B") — é isso que vai na
+            // URL da próxima requisição.
             btn.onclick = () => mostrarAlunosTurma(turma, btn);
             container.appendChild(btn);
         });
 
     } catch (erro) {
+        // cai aqui se o Flask estiver desligado, sem internet, etc.
         console.error('Erro ao carregar turmas:', erro);
         container.innerHTML = '<p class="turma-alunos-vazio">Não foi possível carregar as turmas.</p>';
     }
 }
 
+// Deixa o nome da turma bonito pra exibir: "3_ano_B" -> "3 Ano B"
 function formatarNomeTurma(turma) {
     return turma.replace(/_/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
 }
 
+// Pega as duas primeiras iniciais do nome pro "avatar" redondo
 function iniciaisDoNome(nome) {
     return nome.trim().split(/\s+/).slice(0, 2).map(parte => parte[0].toUpperCase()).join('');
 }
 
+// =====================
+// MOSTRAR ALUNOS DA TURMA SELECIONADA
+// =====================
+
 async function mostrarAlunosTurma(turma, btn) {
+    // marca visualmente qual botão está selecionado no momento
     document.querySelectorAll('.btn-turma-dyn').forEach(b => b.classList.remove('ativo'));
     if (btn) btn.classList.add('ativo');
 
@@ -88,6 +125,8 @@ async function mostrarAlunosTurma(turma, btn) {
     painel.innerHTML = '<p class="turma-alunos-vazio">Carregando alunos...</p>';
 
     try {
+        // encodeURIComponent evita problema se o nome da turma tiver espaço,
+        // acento ou caractere especial dentro da URL
         const resposta = await fetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
         const dados = await resposta.json();
 
@@ -96,6 +135,8 @@ async function mostrarAlunosTurma(turma, btn) {
             return;
         }
 
+        // PÁGINA DE GESTÃO: aqui pode mostrar o RA do aluno (a.ra_aluno),
+        // diferente da página do aluno (home.js), que só mostra o nome.
         painel.innerHTML = `
             <div class="turma-painel-topo">
                 <h3>${formatarNomeTurma(turma)}</h3>
@@ -117,9 +158,12 @@ async function mostrarAlunosTurma(turma, btn) {
     }
 }
 
+// =====================
+// RENDER ALUNOS
+// =====================
+
 function renderAlunos() {
     const tbody = document.getElementById('tabela-alunos');
-    if (!tbody) return;
     tbody.innerHTML = '';
 
     const lista = filtroAtual === 'todos'
@@ -161,12 +205,18 @@ function renderAlunos() {
     atualizarStats();
 }
 
+// =====================
+// STATS
+// =====================
+
 function atualizarStats() {
-    const elTurmas = document.getElementById('stat-turmas');
-    const elAlunos = document.getElementById('stat-alunos');
-    if (elTurmas) elTurmas.textContent = turmas.length;
-    if (elAlunos) elAlunos.textContent = alunos.length;
+    document.getElementById('stat-turmas').textContent = turmas.length;
+    document.getElementById('stat-alunos').textContent = alunos.length;
 }
+
+// =====================
+// FILTROS
+// =====================
 
 function filtrar(btn, tipo) {
     document.querySelectorAll('.filtro').forEach(b => b.classList.remove('ativo'));
@@ -174,6 +224,10 @@ function filtrar(btn, tipo) {
     filtroAtual = tipo;
     renderAlunos();
 }
+
+// =====================
+// POPULAR SELECT DE TURMA NO MODAL
+// =====================
 
 function popularSelectTurma() {
     const sel = document.getElementById('novo-turma');
@@ -187,6 +241,10 @@ function popularSelectTurma() {
     });
 }
 
+// =====================
+// MODAIS
+// =====================
+
 function abrirModal(id) {
     document.getElementById(id).classList.add('aberto');
 }
@@ -195,6 +253,7 @@ function fecharModal(id) {
     document.getElementById(id).classList.remove('aberto');
 }
 
+// Fechar modal ao clicar fora
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('aberto');
@@ -203,6 +262,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 
 function abrirModalAluno() {
     popularSelectTurma();
+    // Limpar campos
     ['novo-nome','novo-matricula'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -218,6 +278,10 @@ function abrirModalTurma() {
     abrirModal('modal-turma');
 }
 
+// =====================
+// ADICIONAR ALUNO
+// =====================
+
 function adicionarAluno() {
     const nome     = document.getElementById('novo-nome').value.trim();
     const matricula= document.getElementById('novo-matricula').value.trim();
@@ -230,6 +294,7 @@ function adicionarAluno() {
         return;
     }
 
+    // Iniciais (até 2 letras das palavras)
     const partes = nome.split(' ').filter(p => p.length > 0);
     const iniciais = partes.length >= 2
         ? (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
@@ -243,6 +308,10 @@ function adicionarAluno() {
     renderAlunos();
     renderTurmas();
 }
+
+// =====================
+// ADICIONAR TURMA
+// =====================
 
 function adicionarTurma() {
     const codigo = document.getElementById('turma-codigo').value.trim().toUpperCase();
@@ -267,6 +336,10 @@ function adicionarTurma() {
     renderTurmas();
 }
 
+// =====================
+// EXCLUIR ALUNO
+// =====================
+
 function confirmarExclusaoAluno(id, nome) {
     document.getElementById('excluir-msg').innerHTML =
         `Tem certeza que deseja excluir o aluno <strong>${nome}</strong>?<br>Essa ação não pode ser desfeita.`;
@@ -281,6 +354,10 @@ function confirmarExclusaoAluno(id, nome) {
 
     abrirModal('modal-excluir');
 }
+
+// =====================
+// EXCLUIR TURMA
+// =====================
 
 function confirmarExclusaoTurma(id, nome) {
     document.getElementById('excluir-msg').innerHTML =
@@ -297,6 +374,11 @@ function confirmarExclusaoTurma(id, nome) {
     abrirModal('modal-excluir');
 }
 
+// =====================
+// FOTOS — GALERIA (GESTÃO)
+// =====================
+
+// Pega o gestor logado (salvo pelo login.js na hora do login)
 function gestorLogadoId() {
     return sessionStorage.getItem('gestor_id');
 }
@@ -345,6 +427,7 @@ async function publicarFoto() {
         return;
     }
 
+    // FormData porque estamos enviando um arquivo, não JSON puro
     const formData = new FormData();
     formData.append('imagem', inputArquivo.files[0]);
     formData.append('legenda', legenda);
@@ -405,6 +488,10 @@ function confirmarExclusaoFoto(idFoto) {
     abrirModal('modal-excluir');
 }
 
+// =====================
+// ENVIAR AVISO
+// =====================
+
 function enviarAviso() {
     const assunto = document.getElementById('av-assunto').value.trim();
     const msg     = document.getElementById('av-msg').value.trim();
@@ -417,6 +504,7 @@ function enviarAviso() {
     const confirmacao = document.getElementById('msg-confirmacao');
     confirmacao.style.display = 'block';
 
+    // Limpar campos
     document.getElementById('av-remetente').value = '';
     document.getElementById('av-assunto').value   = '';
     document.getElementById('av-msg').value       = '';
@@ -424,8 +512,29 @@ function enviarAviso() {
     setTimeout(() => { confirmacao.style.display = 'none'; }, 3500);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    renderTurmas();
-    renderAlunos();
-    carregarFotosGestao();
+// =====================
+// DESTACA LINK ATIVO NO NAV
+// =====================
+
+const secoes  = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+
+window.addEventListener('scroll', () => {
+    let atual = '';
+    secoes.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) atual = s.id;
+    });
+    navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + atual
+            ? '#f0cc72'
+            : 'rgba(255,255,255,0.7)';
+    });
 });
+
+// =====================
+// INICIALIZAR
+// =====================
+
+renderTurmas();
+renderAlunos();
+carregarFotosGestao();
