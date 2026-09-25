@@ -1,0 +1,76 @@
+/* =====================================================
+   TEMA CLARO / ESCURO
+   Ativado quando a tag <html> tem o atributo
+   data-tema="escuro" (veja tema.js).
+   O header já é escuro em ambos os temas, então ele
+   não precisa de regras aqui.
+===================================================== */
+
+[data-tema="escuro"] body {
+    background-color: #0b1220;
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .card,
+[data-tema="escuro"] .foto-card,
+[data-tema="escuro"] .foto-upload-card,
+[data-tema="escuro"] .modal,
+[data-tema="escuro"] .stat-item,
+[data-tema="escuro"] table,
+[data-tema="escuro"] thead {
+    background-color: #131b2e !important;
+    border-color: #26314a !important;
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .campo input,
+[data-tema="escuro"] .campo textarea,
+[data-tema="escuro"] .campo select,
+[data-tema="escuro"] .comentario-campo input {
+    background-color: #1b2438;
+    border-color: #26314a;
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .card-corpo p,
+[data-tema="escuro"] .card-corpo h3,
+[data-tema="escuro"] .foto-card-legenda,
+[data-tema="escuro"] .secao-header h2,
+[data-tema="escuro"] td,
+[data-tema="escuro"] th,
+[data-tema="escuro"] .comentario-nome,
+[data-tema="escuro"] .comentario-texto {
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .secao-header p,
+[data-tema="escuro"] .foto-card-meta,
+[data-tema="escuro"] .stat-label {
+    color: #94a3b8;
+}
+
+[data-tema="escuro"] tbody tr:hover,
+[data-tema="escuro"] .comentario-corpo {
+    background-color: #1b2438;
+}
+
+/* Botão de alternar tema (fica no header, junto do "Sair") */
+.btn-tema {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    transition: background 0.2s;
+}
+
+.btn-tema:hover {
+    background: rgba(255,255,255,0.16);
+}
