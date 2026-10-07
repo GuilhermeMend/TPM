@@ -162,6 +162,9 @@ async function mostrarAlunosTurma(turma, btn) {
 // RENDER ALUNOS
 // =====================
 
+// Desenha a tabela de alunos na tela, aplicando o filtro atual
+// (todos / ativo / destaque). Ainda usa o array de exemplo `alunos`
+// (não está ligado ao banco de dados).
 function renderAlunos() {
     const tbody = document.getElementById('tabela-alunos');
     tbody.innerHTML = '';
@@ -282,6 +285,8 @@ function abrirModalTurma() {
 // ADICIONAR ALUNO
 // =====================
 
+// Adiciona um aluno novo ao array de exemplo `alunos` (só na memória
+// do navegador — não grava no banco). Some se a página for recarregada.
 function adicionarAluno() {
     const nome     = document.getElementById('novo-nome').value.trim();
     const matricula= document.getElementById('novo-matricula').value.trim();
@@ -313,6 +318,7 @@ function adicionarAluno() {
 // ADICIONAR TURMA
 // =====================
 
+// Mesma ideia de adicionarAluno(), mas pra turma: só em memória
 function adicionarTurma() {
     const codigo = document.getElementById('turma-codigo').value.trim().toUpperCase();
     const nome   = document.getElementById('turma-nome').value.trim();
@@ -383,6 +389,8 @@ function gestorLogadoId() {
     return sessionStorage.getItem('gestor_id');
 }
 
+// Busca todas as fotos publicadas (rota GET /api/fotos do app.py) e
+// desenha a galeria, com o botão de excluir em cada card
 async function carregarFotosGestao() {
     const galeria = document.getElementById('foto-galeria');
     if (!galeria) return;
@@ -417,6 +425,8 @@ async function carregarFotosGestao() {
     }
 }
 
+// Envia a imagem + legenda escolhidas no formulário pro servidor
+// (rota POST /api/fotos). Usa FormData porque tem arquivo junto.
 async function publicarFoto() {
     const inputArquivo = document.getElementById('foto-arquivo');
     const legenda = document.getElementById('foto-legenda').value.trim();
@@ -461,6 +471,9 @@ async function publicarFoto() {
     }
 }
 
+// Mostra a confirmação de exclusão de foto no modal genérico
+// (o mesmo usado pra excluir aluno/turma) e só manda o DELETE
+// pro servidor se o usuário confirmar no botão
 function confirmarExclusaoFoto(idFoto) {
     document.getElementById('excluir-msg').innerHTML =
         'Tem certeza que deseja excluir esta foto?<br>Os comentários dela também serão apagados.';
@@ -492,6 +505,9 @@ function confirmarExclusaoFoto(idFoto) {
 // ENVIAR AVISO
 // =====================
 
+// Simula o envio de um comunicado: só mostra a mensagem de
+// confirmação e limpa o formulário (não manda nada pro servidor —
+// essa parte ainda não está conectada ao banco)
 function enviarAviso() {
     const assunto = document.getElementById('av-assunto').value.trim();
     const msg     = document.getElementById('av-msg').value.trim();

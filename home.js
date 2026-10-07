@@ -49,6 +49,8 @@ function iniciaisDoNome(nome) {
     return nome.trim().split(/\s+/).slice(0, 2).map(parte => parte[0].toUpperCase()).join('');
 }
 
+// Mostra a lista de alunos da turma clicada. Também cuida do visual
+// do botão (tira "ativo" de todos e coloca só no que foi clicado).
 async function mostrarAlunosTurma(turma, btn) {
     document.querySelectorAll('.btn-turma').forEach(b => b.classList.remove('ativo'));
     btn.classList.add('ativo');
@@ -127,6 +129,7 @@ async function carregarFotos() {
     }
 }
 
+// Abre o modal com a foto ampliada e já carrega os comentários dela
 function abrirFoto(idFoto, legenda, url) {
     fotoAbertaId = idFoto;
     document.getElementById('foto-modal-legenda').textContent = legenda || 'Foto';
@@ -208,6 +211,8 @@ async function enviarComentario() {
 // MODAIS (usado pela foto + comentários)
 // =====================
 
+// Adiciona/remove a classe "aberto" no modal — é essa classe que o
+// CSS usa pra decidir se ele aparece na tela ou não
 function abrirModal(id) {
     document.getElementById(id).classList.add('aberto');
 }
@@ -216,6 +221,8 @@ function fecharModal(id) {
     document.getElementById(id).classList.remove('aberto');
 }
 
+// Fecha o modal se o usuário clicar fora dele (no fundo escurecido),
+// e não dentro da caixa branca
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', function (e) {
         if (e.target === this) this.classList.remove('aberto');

@@ -8,6 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="tema.css">
+    <script>
+        // Aplica o tema salvo ANTES da página desenhar, pra não piscar
+        if (localStorage.getItem('tema') === 'escuro') {
+            document.documentElement.setAttribute('data-tema', 'escuro');
+        }
+    </script>
 </head>
 
 <body>
@@ -30,6 +37,7 @@
             <a href="#contato">Contato</a>
         </nav>
 
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
         <button class="btn-sair" onclick="window.location.href='login.html'">
             Sair
         </button>
@@ -303,6 +311,7 @@
         </div>
     </div>
 
+    <script src="tema.js"></script>
     <script src="home.js"></script>
 
 </body>

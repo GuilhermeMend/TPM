@@ -1,12 +1,17 @@
+// Espera o clique no botão de cadastro. É "async" porque precisa
+// esperar a resposta do servidor antes de continuar.
 document.getElementById("btnCadastro").addEventListener("click", async function () {
 
 
+    // Pega o que o usuário digitou nos campos de nome e senha
     const nome = document.getElementById("nome").value;
     const senha = document.getElementById("senha").value;
 
     const mensagem = document.getElementById("mensagem");
 
 
+    // Validação simples: não deixa mandar pro servidor se algum
+    // campo estiver vazio
     if(nome === "" || senha === ""){
 
         mensagem.innerHTML = "Preencha todos os campos.";
@@ -19,6 +24,7 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
     try {
 
 
+        // Manda nome e senha pro Flask cadastrar o aluno no banco
         const resposta = await fetch("http://localhost:5000/cadastro", {
 
             method: "POST",
@@ -43,6 +49,8 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
 
 
 
+        // resposta.ok é true quando o Flask devolve um status de
+        // sucesso (200, 201...). Se não for ok, caiu no "else" com erro.
         if(resposta.ok){
 
 
@@ -50,6 +58,8 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
             mensagem.style.color = "green";
 
 
+            // Espera 1 segundo (só pra dar tempo do usuário ler a
+            // mensagem) e manda pra tela de login
             setTimeout(() => {
 
                 window.location.href = "login.html";
@@ -61,6 +71,8 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
         } else {
 
 
+            // Mostra o motivo do erro que o Flask mandou (ex: nome
+            // já cadastrado)
             mensagem.innerHTML = dados.mensagem;
             mensagem.style.color = "red";
 
@@ -72,6 +84,7 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
     } catch(erro){
 
 
+        // Cai aqui se o Flask estiver desligado ou sem internet
         console.error(erro);
 
 
