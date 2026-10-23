@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turmas — Gestão</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/gestao.css">
+    <link rel="stylesheet" href="../css/tema.css">
+    <script>
+        // Aplica o tema salvo ANTES da página desenhar, pra não piscar
+        if (localStorage.getItem('tema') === 'escuro') {
+            document.documentElement.setAttribute('data-tema', 'escuro');
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- ========================
+         HEADER
+    ======================== -->
+    <header>
+        <div class="header-logo">
+            <span class="logo-icon">🎓</span>
+            <h1>Anuário Escolar <span class="gestao-badge">Gestão</span></h1>
+        </div>
+
+        <nav>
+            <a href="gestao.html">Painel</a>
+            <a href="gestao-turmas.html" class="ativo-nav">Turmas</a>
+            <a href="gestao-fotos.html">Fotos</a>
+            <a href="gestao.html#avisos">Avisos</a>
+        </nav>
+
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
+        <button class="btn-sair" onclick="window.location.href='login.html'">
+            Sair
+        </button>
+    </header>
+
+    <main>
+
+        <!-- ========================
+             TURMAS
+        ======================== -->
+        <section class="secao" id="turmas">
+
+            <div class="secao-header">
+                <h2>Turmas</h2>
+                <p>Gerencie e adicione turmas ao anuário</p>
+            </div>
+
+            <div class="turmas-botoes" id="turmas-botoes">
+                <!-- Botões das turmas gerados via JS -->
+            </div>
+
+            <div class="turma-alunos-painel" id="turma-alunos-painel">
+                <p class="turma-alunos-vazio">Selecione uma turma acima para ver os alunos.</p>
+            </div>
+
+            <!-- Botão adicionar turma -->
+            <div style="text-align:center; margin-top: 28px;">
+                <button class="btn-adicionar" onclick="abrirModalTurma()">
+                    + Adicionar turma
+                </button>
+            </div>
+
+        </section>
+
+
+    </main>
+
+    <!-- ========================
+         FOOTER
+    ======================== -->
+    <footer>
+        <p>© 2026 · Anuário Escolar · Painel de Gestão · Acesso restrito</p>
+    </footer>
+
+    <!-- ========================
+         MODAL — ADICIONAR TURMA
+    ======================== -->
+    <div class="modal-overlay" id="modal-turma">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Adicionar Turma</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-turma')">✕</button>
+            </div>
+            <div class="campo">
+                <label>Código da turma</label>
+                <input type="text" id="turma-codigo" placeholder="Ex: 5A">
+            </div>
+            <div class="campo">
+                <label>Nome completo</label>
+                <input type="text" id="turma-nome" placeholder="Ex: 5º Ano A">
+            </div>
+            <div class="campo">
+                <label>Professor responsável</label>
+                <input type="text" id="turma-prof" placeholder="Ex: Prof. João Silva">
+            </div>
+            <div class="campo">
+                <label>Turno</label>
+                <select id="turma-turno">
+                    <option>Manhã</option>
+                    <option>Tarde</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Cor do cartão</label>
+                <select id="turma-cor">
+                    <option value="linear-gradient(135deg,#1d4ed8,#60a5fa)">Azul</option>
+                    <option value="linear-gradient(135deg,#7c3aed,#a855f7)">Roxo</option>
+                    <option value="linear-gradient(135deg,#059669,#34d399)">Verde</option>
+                    <option value="linear-gradient(135deg,#dc2626,#f87171)">Vermelho</option>
+                    <option value="linear-gradient(135deg,#d97706,#fbbf24)">Amarelo</option>
+                    <option value="linear-gradient(135deg,#0891b2,#22d3ee)">Ciano</option>
+                    <option value="linear-gradient(135deg,#db2777,#f472b6)">Rosa</option>
+                </select>
+            </div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-turma')">Cancelar</button>
+                <button class="btn-confirmar" onclick="adicionarTurma()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
+    <script src="../javascript/gestao-turmas.js"></script>
+
+</body>
+</html>

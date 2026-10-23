@@ -70,7 +70,8 @@ nav a {
     transition: all 0.2s;
 }
 
-nav a:hover {
+nav a:hover,
+nav a.ativo-nav {
     color: #f0cc72;
     background: rgba(255,255,255,0.07);
 }

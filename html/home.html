@@ -30,10 +30,10 @@
         </div>
 
         <nav>
-            <a href="#inicio">Início</a>
-            <a href="#turmas">Turmas</a>
-            <a href="#fotos">Fotos</a>         
-            <a href="#contato">Contato</a>
+            <a href="home.html" class="ativo-nav">Início</a>
+            <a href="turmas.html">Turmas</a>
+            <a href="fotos.html">Fotos</a>
+            <a href="home.html#contato">Contato</a>
         </nav>
 
         <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
@@ -54,7 +54,7 @@
                 <div class="banner-badge">✦ Bem-vindo ao Anuário 2026 ✦</div>
                 <h2>Recordações, fotos e<br>momentos especiais da turma.</h2>
                 <p>Um espaço dedicado a preservar cada memória deste ano letivo.</p>
-                <a href="#turmas" class="banner-btn">Explorar o anuário</a>
+                <a href="turmas.html" class="banner-btn">Explorar o anuário</a>
             </div>
 
         </section>
@@ -82,42 +82,6 @@
                 <span class="stat-num">24</span>
                 <span class="stat-label">Eventos</span>
             </div>
-        </section>
-
-        <!-- ========================
-             TURMAS
-        ======================== -->
-        <section class="secao" id="turmas">
-
-            <div class="secao-header">
-                <h2>Turmas</h2>
-                <p>Clique em uma turma para ver os alunos</p>
-            </div>
-
-            <div class="turmas-botoes" id="turmas-botoes">
-                <p class="turma-alunos-vazio">Carregando turmas...</p>
-            </div>
-
-            <div class="turma-alunos-painel" id="turma-alunos-painel">
-                <p class="turma-alunos-vazio">Selecione uma turma acima para ver os alunos.</p>
-            </div>
-
-        </section>
-
-        <!-- ========================
-             FOTOS
-        ======================== -->
-        <section class="secao secao-clara" id="fotos">
-
-            <div class="secao-header">
-                <h2>Fotos</h2>
-                <p>Veja as fotos publicadas e deixe seu comentário</p>
-            </div>
-
-            <div class="foto-galeria" id="foto-galeria">
-                <p class="turma-alunos-vazio">Carregando fotos...</p>
-            </div>
-
         </section>
 
         <!-- ========================
@@ -215,29 +179,6 @@
     <footer>
         <p>© 2026 · Anuário Escolar · Todos os direitos reservados</p>
     </footer>
-
-    <!-- ========================
-         MODAL — FOTO + COMENTÁRIOS
-    ======================== -->
-    <div class="modal-overlay" id="modal-foto">
-        <div class="modal modal-foto">
-            <div class="modal-header">
-                <h3 id="foto-modal-legenda">Foto</h3>
-                <button class="modal-fechar" onclick="fecharModal('modal-foto')">✕</button>
-            </div>
-
-            <img id="foto-modal-img" class="foto-modal-img" src="" alt="">
-
-            <div class="comentarios-lista" id="comentarios-lista">
-                <!-- Comentários gerados via JS -->
-            </div>
-
-            <div class="comentario-campo">
-                <input type="text" id="comentario-texto" placeholder="Escreva um comentário..." maxlength="500">
-                <button class="btn-enviar" onclick="enviarComentario()">Comentar</button>
-            </div>
-        </div>
-    </div>
 
     <script src="../javascript/tema.js"></script>
     <script src="../javascript/home.js"></script>
