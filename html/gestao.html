@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão — Anuário Escolar 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/gestao.css">
+    <link rel="stylesheet" href="../css/mensagens.css">
+    <link rel="stylesheet" href="../css/tema.css">
+    <script>
+        // Aplica o tema salvo ANTES da página desenhar, pra não piscar
+        if (localStorage.getItem('tema') === 'escuro') {
+            document.documentElement.setAttribute('data-tema', 'escuro');
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- ========================
+         HEADER
+    ======================== -->
+    <header>
+        <div class="header-logo">
+            <span class="logo-icon">🎓</span>
+            <h1>Anuário Escolar <span class="gestao-badge">Gestão</span></h1>
+        </div>
+
+        <nav>
+            <a href="gestao.html" class="ativo-nav">Painel</a>
+            <a href="gestao-turmas.html">Turmas</a>
+            <a href="gestao-fotos.html">Fotos</a>
+            <a href="gestao.html#mensagens">Mensagens <span class="badge-nao-lidas" id="badge-nav"></span></a>
+            <a href="gestao.html#avisos">Avisos</a>
+        </nav>
+
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
+        <button class="btn-sair" onclick="window.location.href='login.html'">
+            Sair
+        </button>
+    </header>
+
+    <main>
+
+        <!-- ========================
+             BANNER / HERO
+        ======================== -->
+        <section class="banner" id="painel">
+            <div class="banner-content">
+                <div class="banner-badge">⚙ Painel Administrativo 2026 ⚙</div>
+                <h2>Gerencie turmas, alunos<br>e comunicações da escola.</h2>
+                <p>Área restrita — acesso somente para administradores autorizados.</p>
+                <a href="gestao-turmas.html" class="banner-btn">Acessar gestão</a>
+            </div>
+        </section>
+
+        <!-- ========================
+             STATS
+        ======================== -->
+        <section class="stats" id="stats-bar">
+            <div class="stat-item">
+                <span class="stat-num" id="stat-turmas">0</span>
+                <span class="stat-label">Turmas</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">38</span>
+                <span class="stat-label">Professores</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num" id="stat-alunos">0</span>
+                <span class="stat-label">Alunos</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">24</span>
+                <span class="stat-label">Eventos</span>
+            </div>
+        </section>
+
+        <!-- ========================
+             CAIXA DE ENTRADA
+        ======================== -->
+        <section class="secao" id="mensagens">
+
+            <div class="secao-header">
+                <h2>Caixa de entrada</h2>
+                <p>Mensagens enviadas pelos alunos pela página inicial</p>
+            </div>
+
+            <div class="caixa-entrada">
+                <div class="caixa-topo">
+                    <div class="caixa-abas">
+                        <button class="aba ativa" id="aba-recebidas" onclick="trocarAba('recebidas')">Recebidas <span class="badge-nao-lidas" id="badge-caixa"></span></button>
+                        <button class="aba" id="aba-enviadas" onclick="trocarAba('enviadas')">Enviadas</button>
+                    </div>
+                </div>
+                <div class="caixa-lista" id="caixa-lista">
+                    <p class="msg-vazia">Carregando mensagens...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             AVISOS / FORMULÁRIO
+        ======================== -->
+        <section class="secao" id="avisos">
+
+            <div class="secao-header">
+                <h2>Enviar mensagem</h2>
+                <p>Fale com um aluno ou publique um aviso para todos</p>
+            </div>
+
+            <div class="contato-grid">
+
+                <!-- Formulário -->
+                <div class="card contato-form">
+                    <h3>Nova mensagem</h3>
+                    <p>Envie para um aluno ou para todos — ela aparece na caixa de entrada da home</p>
+
+                    <div class="campo">
+                        <label>Remetente</label>
+                        <input type="text" id="av-remetente" placeholder="Faça login como gestão" readonly>
+                    </div>
+                    <div class="campo">
+                        <label>Destinatário</label>
+                        <select id="av-dest">
+                            <option value="">Todos os alunos</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label>Assunto</label>
+                        <input type="text" id="av-assunto" placeholder="Título da mensagem" maxlength="150">
+                    </div>
+                    <div class="campo">
+                        <label>Mensagem</label>
+                        <textarea id="av-msg" placeholder="Escreva a mensagem..."></textarea>
+                    </div>
+                    <button class="btn-enviar" onclick="enviarAviso()">
+                        Enviar mensagem →
+                    </button>
+                    <p id="msg-confirmacao" class="msg-status"></p>
+                </div>
+
+                <!-- Informações / últimos avisos -->
+                <div class="contato-infos">
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#eff6ff">📋</div>
+                        <div>
+                            <h4>Último comunicado</h4>
+                            <p>Reunião de pais — 12/06/2026<br>Destinatário: Responsáveis</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#f0fdf4">📅</div>
+                        <div>
+                            <h4>Próximo evento</h4>
+                            <p>Festa Junina · 20/06/2026<br>Ginásio — 14h às 18h</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fefce8">📞</div>
+                        <div>
+                            <h4>Secretaria</h4>
+                            <p>(11) 3000-0000<br>Seg a Sex · 7h às 18h</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fdf4ff">✉️</div>
+                        <div>
+                            <h4>E-mail da gestão</h4>
+                            <p>gestao@escola2026.edu.br</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================
+         FOOTER
+    ======================== -->
+    <footer>
+        <p>© 2026 · Anuário Escolar · Painel de Gestão · Acesso restrito</p>
+    </footer>
+
+    <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
+    <script src="../javascript/gestao.js"></script>
+
+</body>
+</html>

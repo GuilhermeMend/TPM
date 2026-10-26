@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anuário Escolar 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/mensagens.css">
+    <link rel="stylesheet" href="../css/tema.css">
+    <script>
+        // Aplica o tema salvo ANTES da página desenhar, pra não piscar
+        if (localStorage.getItem('tema') === 'escuro') {
+            document.documentElement.setAttribute('data-tema', 'escuro');
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- ========================
+         HEADER
+    ======================== -->
+    <header>
+
+        <div class="header-logo">
+            <span class="logo-icon">🎓</span>
+            <h1>Anuário Escolar</h1>
+        </div>
+
+        <nav>
+            <a href="home.html" class="ativo-nav">Início</a>
+            <a href="turmas.html">Turmas</a>
+            <a href="fotos.html">Fotos</a>
+            <a href="home.html#mensagens">Mensagens <span class="badge-nao-lidas" id="badge-nav"></span></a>
+            <a href="home.html#contato">Contato</a>
+        </nav>
+
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
+        <button class="btn-sair" onclick="window.location.href='login.html'">
+            Sair
+        </button>
+
+    </header>
+
+    <main>
+
+        <!-- ========================
+             BANNER / HERO
+        ======================== -->
+        <section class="banner" id="inicio">
+
+            <div class="banner-content">
+                <div class="banner-badge">✦ Bem-vindo ao Anuário 2026 ✦</div>
+                <h2>Recordações, fotos e<br>momentos especiais da turma.</h2>
+                <p>Um espaço dedicado a preservar cada memória deste ano letivo.</p>
+                <a href="turmas.html" class="banner-btn">Explorar o anuário</a>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             STATS
+        ======================== -->
+        <section class="stats">
+            <div class="stat-item">
+                <span class="stat-num">3</span>
+                <span class="stat-label">Turmas</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">38</span>
+                <span class="stat-label">Professores</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">6</span>
+                <span class="stat-label">Alunos</span>
+            </div>
+            <div class="stat-div"></div>
+            <div class="stat-item">
+                <span class="stat-num">24</span>
+                <span class="stat-label">Eventos</span>
+            </div>
+        </section>
+
+        <!-- ========================
+             CAIXA DE ENTRADA
+        ======================== -->
+        <section class="secao" id="mensagens">
+
+            <div class="secao-header">
+                <h2>Caixa de entrada</h2>
+                <p>Mensagens e avisos enviados pela gestão da escola</p>
+            </div>
+
+            <div class="caixa-entrada">
+                <div class="caixa-topo">
+                    <div class="caixa-abas">
+                        <button class="aba ativa" id="aba-recebidas" onclick="trocarAba('recebidas')">Recebidas <span class="badge-nao-lidas" id="badge-caixa"></span></button>
+                        <button class="aba" id="aba-enviadas" onclick="trocarAba('enviadas')">Enviadas</button>
+                    </div>
+                </div>
+                <div class="caixa-lista" id="caixa-lista">
+                    <p class="msg-vazia">Carregando mensagens...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================
+             CONTATO
+        ======================== -->
+        <section class="secao secao-clara" id="contato">
+
+            <div class="secao-header">
+                <h2>Contato</h2>
+                <p>Fale com a secretaria ou administração da escola</p>
+            </div>
+
+            <div class="contato-grid">
+
+                <!-- Formulário -->
+                <div class="card contato-form">
+                    <h3>Enviar mensagem</h3>
+                    <p>Sua mensagem chega direto na caixa de entrada da gestão</p>
+
+                    <div class="campo">
+                        <label>Seu nome</label>
+                        <input type="text" id="ct-nome" placeholder="Faça login como aluno" readonly>
+                    </div>
+                    <div class="campo">
+                        <label>Assunto</label>
+                        <select id="ct-assunto">
+                            <option value="">Selecione um assunto</option>
+                            <option>Dúvida sobre o anuário</option>
+                            <option>Informações sobre turmas</option>
+                            <option>Solicitação de foto</option>
+                            <option>Outros</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label>Mensagem</label>
+                        <textarea id="ct-texto" placeholder="Escreva sua mensagem..."></textarea>
+                    </div>
+                    <button class="btn-enviar" onclick="enviarMensagem()">
+                        Enviar mensagem →
+                    </button>
+                    <p id="msg-confirmacao" class="msg-status"></p>
+                </div>
+
+                <!-- Informações -->
+                <div class="contato-infos">
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#eff6ff">📍</div>
+                        <div>
+                            <h4>Endereço</h4>
+                            <p>Rua das Flores, 123 — Centro<br>São Paulo, SP · CEP 01000-000</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#f0fdf4">📞</div>
+                        <div>
+                            <h4>Telefone</h4>
+                            <p>(11) 3000-0000<br>Seg a Sex · 7h às 16h</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fefce8">✉️</div>
+                        <div>
+                            <h4>E-mail</h4>
+                            <p>secretaria@escola2026.edu.br</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon" style="background:#fdf4ff">🕐</div>
+                        <div>
+                            <h4>Horário de funcionamento</h4>
+                            <p>Segunda a Sexta: 7h – 16h</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================
+         FOOTER
+    ======================== -->
+    <footer>
+        <p>© 2026 · Anuário Escolar · Todos os direitos reservados</p>
+    </footer>
+
+    <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
+    <script src="../javascript/home.js"></script>
+
+</body>
+</html>
