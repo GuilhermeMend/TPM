@@ -30,3 +30,21 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
         if (e.target === this) this.classList.remove('aberto');
     });
 });
+
+// Evita que texto digitado por alguém vire HTML na tela (ex: "<b>oi</b>")
+function escaparHtml(texto) {
+    return String(texto ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// "2026-10-23T14:05:00" -> "23/10/2026 14:05"
+function formatarDataHora(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' ' +
+        d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}

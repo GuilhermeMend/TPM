@@ -84,9 +84,7 @@ async function mostrarAlunosTurma(turma, btn) {
     }
 }
 
-// Modal "Adicionar turma" (ainda só em memória, não grava no banco)
-const turmasExemplo = [];
-
+// Modal "Adicionar turma" — grava no banco pela rota POST /api/turmas
 function abrirModalTurma() {
     ['turma-codigo','turma-nome','turma-prof'].forEach(id => {
         const el = document.getElementById(id);
@@ -95,24 +93,39 @@ function abrirModalTurma() {
     abrirModal('modal-turma');
 }
 
-function adicionarTurma() {
-    const codigo = document.getElementById('turma-codigo').value.trim().toUpperCase();
-    const nome   = document.getElementById('turma-nome').value.trim();
-    const prof   = document.getElementById('turma-prof').value.trim();
-    const turno  = document.getElementById('turma-turno').value;
-    const cor    = document.getElementById('turma-cor').value;
+async function adicionarTurma() {
+    const codigo    = document.getElementById('turma-codigo').value.trim();
+    const nome      = document.getElementById('turma-nome').value.trim();
+    const professor = document.getElementById('turma-prof').value.trim();
+    const turno     = document.getElementById('turma-turno').value;
+    const cor       = document.getElementById('turma-cor').value;
 
-    if (!codigo || !nome || !prof) {
+    if (!codigo || !nome || !professor) {
         alert('Preencha código, nome e professor.');
         return;
     }
-    if (turmasExemplo.find(t => t.codigo === codigo)) {
-        alert('Já existe uma turma com esse código.');
-        return;
-    }
 
-    turmasExemplo.push({ codigo, nome, prof, turno, cor });
-    fecharModal('modal-turma');
+    try {
+        const resposta = await fetch(`${API_BASE}/api/turmas`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo, nome, professor, turno, cor })
+        });
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            alert(dados.mensagem || 'Não foi possível adicionar a turma.');
+            return;
+        }
+
+        fecharModal('modal-turma');
+        // recarrega os botões pra a turma nova aparecer
+        carregarTurmasBotoes();
+
+    } catch (erro) {
+        console.error('Erro ao adicionar turma:', erro);
+        alert('Não foi possível falar com o servidor. O Flask está rodando?');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', carregarTurmasBotoes);

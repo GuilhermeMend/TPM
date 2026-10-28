@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/mensagens.css">
     <link rel="stylesheet" href="../css/tema.css">
     <script>
         // Aplica o tema salvo ANTES da página desenhar, pra não piscar
@@ -33,6 +34,7 @@
             <a href="home.html" class="ativo-nav">Início</a>
             <a href="turmas.html">Turmas</a>
             <a href="fotos.html">Fotos</a>
+            <a href="home.html#mensagens">Mensagens <span class="badge-nao-lidas" id="badge-nav"></span></a>
             <a href="home.html#contato">Contato</a>
         </nav>
 
@@ -85,6 +87,30 @@
         </section>
 
         <!-- ========================
+             CAIXA DE ENTRADA
+        ======================== -->
+        <section class="secao" id="mensagens">
+
+            <div class="secao-header">
+                <h2>Caixa de entrada</h2>
+                <p>Mensagens e avisos enviados pela gestão da escola</p>
+            </div>
+
+            <div class="caixa-entrada">
+                <div class="caixa-topo">
+                    <div class="caixa-abas">
+                        <button class="aba ativa" id="aba-recebidas" onclick="trocarAba('recebidas')">Recebidas <span class="badge-nao-lidas" id="badge-caixa"></span></button>
+                        <button class="aba" id="aba-enviadas" onclick="trocarAba('enviadas')">Enviadas</button>
+                    </div>
+                </div>
+                <div class="caixa-lista" id="caixa-lista">
+                    <p class="msg-vazia">Carregando mensagens...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================
              CONTATO
         ======================== -->
         <section class="secao secao-clara" id="contato">
@@ -99,20 +125,16 @@
                 <!-- Formulário -->
                 <div class="card contato-form">
                     <h3>Enviar mensagem</h3>
-                    <p>Preencha e entraremos em contato em breve</p>
+                    <p>Sua mensagem chega direto na caixa de entrada da gestão</p>
 
                     <div class="campo">
                         <label>Seu nome</label>
-                        <input type="text" placeholder="Nome completo">
-                    </div>
-                    <div class="campo">
-                        <label>E-mail</label>
-                        <input type="email" placeholder="email@exemplo.com">
+                        <input type="text" id="ct-nome" placeholder="Faça login como aluno" readonly>
                     </div>
                     <div class="campo">
                         <label>Assunto</label>
-                        <select>
-                            <option>Selecione um assunto</option>
+                        <select id="ct-assunto">
+                            <option value="">Selecione um assunto</option>
                             <option>Dúvida sobre o anuário</option>
                             <option>Informações sobre turmas</option>
                             <option>Solicitação de foto</option>
@@ -121,14 +143,12 @@
                     </div>
                     <div class="campo">
                         <label>Mensagem</label>
-                        <textarea placeholder="Escreva sua mensagem..."></textarea>
+                        <textarea id="ct-texto" placeholder="Escreva sua mensagem..."></textarea>
                     </div>
                     <button class="btn-enviar" onclick="enviarMensagem()">
                         Enviar mensagem →
                     </button>
-                    <p id="msg-confirmacao" style="color:#16a34a; font-weight:600; display:none; margin-top:10px; text-align:center;">
-                        ✓ Mensagem enviada com sucesso!
-                    </p>
+                    <p id="msg-confirmacao" class="msg-status"></p>
                 </div>
 
                 <!-- Informações -->
@@ -181,6 +201,7 @@
     </footer>
 
     <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
     <script src="../javascript/home.js"></script>
 
 </body>

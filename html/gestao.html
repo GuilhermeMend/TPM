@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/gestao.css">
+    <link rel="stylesheet" href="../css/mensagens.css">
     <link rel="stylesheet" href="../css/tema.css">
     <script>
         // Aplica o tema salvo ANTES da página desenhar, pra não piscar
@@ -32,6 +33,7 @@
             <a href="gestao.html" class="ativo-nav">Painel</a>
             <a href="gestao-turmas.html">Turmas</a>
             <a href="gestao-fotos.html">Fotos</a>
+            <a href="gestao.html#mensagens">Mensagens <span class="badge-nao-lidas" id="badge-nav"></span></a>
             <a href="gestao.html#avisos">Avisos</a>
         </nav>
 
@@ -81,49 +83,68 @@
         </section>
 
         <!-- ========================
+             CAIXA DE ENTRADA
+        ======================== -->
+        <section class="secao" id="mensagens">
+
+            <div class="secao-header">
+                <h2>Caixa de entrada</h2>
+                <p>Mensagens enviadas pelos alunos pela página inicial</p>
+            </div>
+
+            <div class="caixa-entrada">
+                <div class="caixa-topo">
+                    <div class="caixa-abas">
+                        <button class="aba ativa" id="aba-recebidas" onclick="trocarAba('recebidas')">Recebidas <span class="badge-nao-lidas" id="badge-caixa"></span></button>
+                        <button class="aba" id="aba-enviadas" onclick="trocarAba('enviadas')">Enviadas</button>
+                    </div>
+                </div>
+                <div class="caixa-lista" id="caixa-lista">
+                    <p class="msg-vazia">Carregando mensagens...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================
              AVISOS / FORMULÁRIO
         ======================== -->
         <section class="secao" id="avisos">
 
             <div class="secao-header">
-                <h2>Comunicados</h2>
-                <p>Envie um aviso interno para toda a equipe</p>
+                <h2>Enviar mensagem</h2>
+                <p>Fale com um aluno ou publique um aviso para todos</p>
             </div>
 
             <div class="contato-grid">
 
                 <!-- Formulário -->
                 <div class="card contato-form">
-                    <h3>Novo comunicado</h3>
-                    <p>Preencha e o aviso será publicado para alunos e professores</p>
+                    <h3>Nova mensagem</h3>
+                    <p>Envie para um aluno ou para todos — ela aparece na caixa de entrada da home</p>
 
                     <div class="campo">
                         <label>Remetente</label>
-                        <input type="text" id="av-remetente" placeholder="Seu nome / setor">
+                        <input type="text" id="av-remetente" placeholder="Faça login como gestão" readonly>
                     </div>
                     <div class="campo">
                         <label>Destinatário</label>
                         <select id="av-dest">
-                            <option>Todos</option>
-                            <option>Apenas alunos</option>
-                            <option>Apenas professores</option>
-                            <option>Responsáveis</option>
+                            <option value="">Todos os alunos</option>
                         </select>
                     </div>
                     <div class="campo">
                         <label>Assunto</label>
-                        <input type="text" id="av-assunto" placeholder="Título do comunicado">
+                        <input type="text" id="av-assunto" placeholder="Título da mensagem" maxlength="150">
                     </div>
                     <div class="campo">
                         <label>Mensagem</label>
-                        <textarea id="av-msg" placeholder="Escreva o comunicado..."></textarea>
+                        <textarea id="av-msg" placeholder="Escreva a mensagem..."></textarea>
                     </div>
                     <button class="btn-enviar" onclick="enviarAviso()">
-                        Publicar comunicado →
+                        Enviar mensagem →
                     </button>
-                    <p id="msg-confirmacao" style="color:#16a34a; font-weight:600; display:none; margin-top:10px; text-align:center;">
-                        ✓ Comunicado publicado com sucesso!
-                    </p>
+                    <p id="msg-confirmacao" class="msg-status"></p>
                 </div>
 
                 <!-- Informações / últimos avisos -->
@@ -176,6 +197,7 @@
     </footer>
 
     <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
     <script src="../javascript/gestao.js"></script>
 
 </body>
