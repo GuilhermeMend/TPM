@@ -4,7 +4,10 @@ from werkzeug.utils import secure_filename
 import mysql.connector
 import os
 import uuid
+from openai import OpenAI
 
+# Inicializa o cliente (ele lerá a variável de ambiente OPENAI_API_KEY)
+client = OpenAI()
 
 # Criação da aplicação Flask
 app = Flask(__name__)
@@ -1404,6 +1407,41 @@ def marcar_mensagem_lida(id_mensagem):
 
         if conexao:
             conexao.close()
+
+
+
+def verificar_imagem_adequada():
+    try:
+        # Envia a URL para o endpoint de omni-moderation da OpenAI
+        resposta = client.moderations.create(
+            model="omni-moderation-latest",
+            input=[
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": url_da_imagem
+                    }
+                }
+            ]
+        )
+        
+        resultado = resposta.results[0]
+        
+        # 'flagged' retorna True se a imagem violar as regras (for inadequada)
+        if resultado.flagged:
+            print("❌ Imagem BLOQUEADA! Conteúdo inadequado detectado.")
+            # Exibe quais categorias foram violadas (ex: sexual, violence)
+            for categoria, violada in resultado.categories.__dict__.items():
+                if violada:
+                    print(f"   -> Categoria violada: {categoria}")
+            return False
+        else:
+            print("✅ Imagem APROVADA! Conteúdo seguro.")
+            return True
+            
+    except Exception as e:
+        print(f"Erro ao processar moderação: {e}")
+        return False
 
 
 
