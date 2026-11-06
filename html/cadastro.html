@@ -14,7 +14,7 @@
 
     <div class="login-container">
 
-        <h1>Cadastro</h1>
+        <h1>Cadastrar aluno</h1>
 
         <!-- Nome -->
         <input
@@ -22,6 +22,18 @@
             placeholder="Nome completo"
             id="nome"
         >
+
+        <!-- RA -->
+        <input
+            type="text"
+            placeholder="RA do aluno"
+            id="ra"
+        >
+
+        <!-- Turma (carregada do banco) -->
+        <select id="turma">
+            <option value="">Carregando turmas...</option>
+        </select>
 
         <!-- Senha -->
         <input
@@ -43,10 +55,8 @@
         <!-- Voltar -->
         <div class="cadastro-link">
 
-            <span>Já tem conta?</span>
-
-            <a href="login.html" class="btn-voltar">
-                Entrar
+            <a href="gestao-turmas.html" class="btn-voltar">
+                Voltar ao painel
             </a>
 
         </div>
@@ -54,6 +64,7 @@
     </div>
 
 
+    <script src="../javascript/comum.js"></script>
     <script src="../javascript/cadastro.js"></script>
 
 </body>

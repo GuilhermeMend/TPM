@@ -186,3 +186,11 @@ CREATE TABLE turmas_cadastradas (
     cor VARCHAR(100),
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- =====================================================
+-- Senhas com hash: a coluna precisa de mais espaço (o hash tem
+-- ~160 caracteres). Depois de rodar este script, rode UMA vez
+-- `python migrar_senhas.py` para converter as senhas de exemplo.
+-- =====================================================
+ALTER TABLE `aluno` MODIFY `senha` VARCHAR(255);
+ALTER TABLE `gestão` MODIFY `senha` VARCHAR(255);

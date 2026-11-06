@@ -1,98 +1,84 @@
-// Espera o clique no botão de cadastro. É "async" porque precisa
-// esperar a resposta do servidor antes de continuar.
+// Cadastro de aluno — só a gestão usa esta página.
+// Depende de comum.js (API_BASE).
+
+const mensagem = document.getElementById("mensagem");
+
+// Sem login de gestão neste navegador: volta pro login
+if (!sessionStorage.getItem("gestor_id")) {
+    window.location.href = "login.html";
+}
+
+// Preenche o <select> com as turmas que existem no banco
+async function carregarTurmas() {
+    const select = document.getElementById("turma");
+
+    try {
+        const resposta = await fetch(`${API_BASE}/api/turmas`);
+        const dados = await resposta.json();
+
+        select.innerHTML = '<option value="">Escolha a turma</option>';
+
+        (dados.turmas || []).forEach(turma => {
+            const opcao = document.createElement("option");
+            opcao.value = turma;
+            opcao.textContent = formatarNomeTurma(turma);
+            select.appendChild(opcao);
+        });
+
+    } catch (erro) {
+        console.error(erro);
+        select.innerHTML = '<option value="">Erro ao carregar turmas</option>';
+    }
+}
+
+carregarTurmas();
+
 document.getElementById("btnCadastro").addEventListener("click", async function () {
 
-
-    // Pega o que o usuário digitou nos campos de nome e senha
-    const nome = document.getElementById("nome").value;
+    const nome = document.getElementById("nome").value.trim();
+    const ra = document.getElementById("ra").value.trim();
+    const turma = document.getElementById("turma").value;
     const senha = document.getElementById("senha").value;
 
-    const mensagem = document.getElementById("mensagem");
-
-
-    // Validação simples: não deixa mandar pro servidor se algum
-    // campo estiver vazio
-    if(nome === "" || senha === ""){
-
-        mensagem.innerHTML = "Preencha todos os campos.";
+    if (!nome || !ra || !turma || !senha) {
+        mensagem.textContent = "Preencha todos os campos.";
         mensagem.style.color = "red";
-
         return;
     }
 
-
     try {
 
-
-        // Manda nome e senha pro Flask cadastrar o aluno no banco
-        const resposta = await fetch("http://localhost:5000/cadastro", {
-
+        const resposta = await fetch(`${API_BASE}/cadastro`, {
             method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-
-            body: JSON.stringify({
-
-                nome: nome,
-                senha: senha
-
-            })
-
+            credentials: "include", // envia o cookie de sessão da gestão
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, ra, turma, senha })
         });
-
-
 
         const dados = await resposta.json();
 
-
-
-        // resposta.ok é true quando o Flask devolve um status de
-        // sucesso (200, 201...). Se não for ok, caiu no "else" com erro.
-        if(resposta.ok){
-
-
-            mensagem.innerHTML = "Cadastro realizado com sucesso!";
+        if (resposta.ok) {
+            mensagem.textContent = "Aluno cadastrado com sucesso!";
             mensagem.style.color = "green";
 
-
-            // Espera 1 segundo (só pra dar tempo do usuário ler a
-            // mensagem) e manda pra tela de login
-            setTimeout(() => {
-
-                window.location.href = "login.html";
-
-            }, 1000);
-
-
+            // Limpa os campos pra cadastrar o próximo (mantém a turma)
+            ["nome", "ra", "senha"].forEach(id => {
+                document.getElementById(id).value = "";
+            });
 
         } else {
-
-
-            // Mostra o motivo do erro que o Flask mandou (ex: nome
-            // já cadastrado)
-            mensagem.innerHTML = dados.mensagem;
+            mensagem.textContent = dados.mensagem || "Erro ao cadastrar.";
             mensagem.style.color = "red";
 
-
+            // Sessão expirou (ex: servidor reiniciou): volta pro login
+            if (resposta.status === 401) {
+                setTimeout(() => { window.location.href = "login.html"; }, 1500);
+            }
         }
 
-
-
-    } catch(erro){
-
-
-        // Cai aqui se o Flask estiver desligado ou sem internet
+    } catch (erro) {
         console.error(erro);
-
-
-        mensagem.innerHTML = "Erro ao conectar com o servidor.";
+        mensagem.textContent = "Erro ao conectar com o servidor.";
         mensagem.style.color = "red";
-
-
     }
-
-
 });

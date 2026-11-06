@@ -1,19 +1,42 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import os
 import uuid
-from openai import OpenAI
+import requests
 
-# Inicializa o cliente (ele lerá a variável de ambiente OPENAI_API_KEY)
-client = OpenAI()
+# Lê o arquivo .env (se existir) para as chaves e segredos
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # Criação da aplicação Flask
 app = Flask(__name__)
 
-# Permite que o JavaScript do navegador consiga acessar o Flask
-CORS(app)
+# Chave usada para assinar o cookie de sessão (login da gestão).
+# Defina SECRET_KEY no .env; sem ela, é gerada uma aleatória a cada
+# inicialização (o login da gestão cai sempre que o servidor reinicia).
+app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
+
+# Permite que o JavaScript do navegador (Live Server, porta 5501) acesse
+# o Flask e envie o cookie de sessão junto (supports_credentials).
+# IMPORTANTE: abra o site por http://localhost:5501 (não 127.0.0.1),
+# senão o navegador não envia o cookie.
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:5501", "http://127.0.0.1:5501"]
+)
+
+# Chaves da Sightengine (https://dashboard.sightengine.com), no .env:
+#   SIGHTENGINE_USER=...
+#   SIGHTENGINE_SECRET=...
+SIGHTENGINE_USER = os.environ.get('SIGHTENGINE_USER')
+SIGHTENGINE_SECRET = os.environ.get('SIGHTENGINE_SECRET')
 
 
 # ================= CONFIGURAÇÃO DE UPLOAD DE FOTOS =================
@@ -95,16 +118,20 @@ def login():
         # Procura um aluno com o mesmo nome e senha
         cursor.execute(
             """
-            SELECT id_aluno, nome
+            SELECT id_aluno, nome, senha
             FROM aluno
-            WHERE nome = %s AND senha = %s
+            WHERE nome = %s
             """,
-            (nome_recebido, senha_recebida)
+            (nome_recebido,)
         )
 
 
-        # Guarda o resultado encontrado
+        # Guarda o resultado encontrado e confere a senha com o hash
         usuario_encontrado = cursor.fetchone()
+
+        if usuario_encontrado and not check_password_hash(
+                usuario_encontrado['senha'], senha_recebida or ''):
+            usuario_encontrado = None
 
 
 
@@ -164,106 +191,126 @@ def login():
 
 
 
-# ================= CADASTRO DO ALUNO =================
+# ================= CADASTRO DO ALUNO (SÓ GESTÃO) =================
+#
+# Rota: POST /cadastro
+# JSON: { "nome": "...", "ra": "...", "senha": "...", "turma": "3_ano_B" }
+# Só funciona com a gestão logada (cookie de sessão criado no
+# /login_gestao). Cria o login do aluno (tabela `aluno`, senha com hash)
+# e coloca o aluno na turma (tabela `turmas`), tudo na mesma transação.
 
 @app.route('/cadastro', methods=['POST'])
 def cadastro():
 
-
-    # Recebe os dados enviados pelo formulário
-    dados = request.get_json()
-
-
-    # Separa nome e senha recebidos
-    nome = dados.get('nome')
-    senha = dados.get('senha')
-
-
-
-    # Verifica se os campos foram preenchidos
-    if not nome or not senha:
-
+    if not session.get('gestor_id'):
         return jsonify({
-
             "sucesso": False,
+            "mensagem": "Apenas a gestão pode cadastrar alunos. Faça login como gestão."
+        }), 401
 
-            "mensagem": "Nome e senha são obrigatórios."
+    dados = request.get_json() or {}
 
+    nome = (dados.get('nome') or '').strip()
+    ra = (dados.get('ra') or '').strip()
+    senha = dados.get('senha') or ''
+    turma = (dados.get('turma') or '').strip()
+
+    if not nome or not ra or not senha or not turma:
+        return jsonify({
+            "sucesso": False,
+            "mensagem": "Nome, RA, senha e turma são obrigatórios."
         }), 400
 
+    if len(nome) > 50 or len(ra) > 50:
+        return jsonify({
+            "sucesso": False,
+            "mensagem": "Nome e RA podem ter no máximo 50 caracteres."
+        }), 400
 
+    if len(senha) < 4:
+        return jsonify({
+            "sucesso": False,
+            "mensagem": "A senha precisa ter pelo menos 4 caracteres."
+        }), 400
 
     conexao = None
     cursor = None
 
-
-
     try:
 
-        # Abre conexão com o banco
         conexao = conectar_banco()
-
-
-        # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
 
-
-
-        # Insere um novo aluno na tabela
+        # A turma precisa existir (criada pelo botão "+ Adicionar turma"
+        # ou já com alunos)
         cursor.execute(
-
             """
-            INSERT INTO aluno (nome, senha)
-            VALUES (%s, %s)
+            SELECT 1 FROM turmas_cadastradas WHERE codigo = %s
+            UNION
+            SELECT 1 FROM turmas WHERE turma = %s
             """,
+            (turma, turma)
+        )
+        if not cursor.fetchone():
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Essa turma não existe."
+            }), 400
 
-            (nome, senha)
+        # Nome e RA não podem se repetir
+        cursor.execute("SELECT 1 FROM aluno WHERE nome = %s", (nome,))
+        if cursor.fetchone():
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Já existe um aluno com esse nome."
+            }), 409
 
+        cursor.execute("SELECT 1 FROM turmas WHERE ra_aluno = %s", (ra,))
+        if cursor.fetchone():
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Já existe um aluno com esse RA."
+            }), 409
+
+        # Login do aluno (senha guardada como hash, nunca em texto)
+        cursor.execute(
+            "INSERT INTO aluno (nome, senha) VALUES (%s, %s)",
+            (nome, generate_password_hash(senha))
         )
 
+        # Vínculo com a turma
+        cursor.execute(
+            """
+            INSERT INTO turmas (ra_aluno, nome_aluno, turma)
+            VALUES (%s, %s, %s)
+            """,
+            (ra, nome, turma)
+        )
 
-
-        # Confirma a alteração no banco
         conexao.commit()
 
-
-
         return jsonify({
-
             "sucesso": True,
-
-            "mensagem": "Cadastro realizado com sucesso!"
-
+            "mensagem": "Aluno cadastrado com sucesso!"
         }), 201
-
-
 
     except mysql.connector.Error as erro:
 
-
-        # Mostra o erro no terminal do Flask
         print(f"Erro no banco: {erro}")
 
+        if conexao:
+            conexao.rollback()
 
         return jsonify({
-
             "sucesso": False,
-
-            "mensagem": "Erro ao cadastrar usuário."
-
+            "mensagem": "Erro ao cadastrar aluno."
         }), 500
-
-
 
     finally:
 
-
-        # Fecha o cursor
         if cursor:
             cursor.close()
 
-
-        # Fecha a conexão com o banco
         if conexao:
             conexao.close()
 
@@ -304,12 +351,12 @@ def login_gestao():
         cursor.execute(
 
             """
-            SELECT id_gestor, nome
+            SELECT id_gestor, nome, senha
             FROM gestão
-            WHERE nome = %s AND senha = %s
+            WHERE nome = %s
             """,
 
-            (nome_recebido, senha_recebida)
+            (nome_recebido,)
 
         )
 
@@ -317,10 +364,18 @@ def login_gestao():
 
         gestor_encontrado = cursor.fetchone()
 
+        if gestor_encontrado and not check_password_hash(
+                gestor_encontrado['senha'], senha_recebida or ''):
+            gestor_encontrado = None
+
 
 
         # Caso encontre o gestor
         if gestor_encontrado:
+
+            # Guarda no cookie de sessão que quem fez login é gestão
+            # (usado pra proteger rotas como o cadastro de alunos)
+            session['gestor_id'] = gestor_encontrado['id_gestor']
 
 
             return jsonify({
@@ -439,6 +494,62 @@ def listar_turmas():
 
         # sempre fecha cursor/conexão, mesmo se deu erro acima —
         # senão fica conexão aberta "penduradas" no banco
+        if cursor:
+            cursor.close()
+
+        if conexao:
+            conexao.close()
+
+
+
+# ================= ESTATÍSTICAS DO PAINEL (GESTÃO) =================
+#
+# Rota: GET /api/estatisticas
+# Pra que serve: números reais pros cartões do painel da gestão
+# (total de turmas e total de alunos matriculados em turmas).
+
+@app.route('/api/estatisticas', methods=['GET'])
+def estatisticas():
+
+    conexao = None
+    cursor = None
+
+    try:
+
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            """
+            SELECT COUNT(*) FROM (
+                SELECT turma FROM turmas WHERE turma IS NOT NULL
+                UNION
+                SELECT codigo FROM turmas_cadastradas
+            ) AS todas
+            """
+        )
+        total_turmas = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM turmas")
+        total_alunos = cursor.fetchone()[0]
+
+        return jsonify({
+            "sucesso": True,
+            "total_turmas": total_turmas,
+            "total_alunos": total_alunos
+        }), 200
+
+    except mysql.connector.Error as erro:
+
+        print(f"Erro no banco: {erro}")
+
+        return jsonify({
+            "sucesso": False,
+            "mensagem": "Erro ao buscar estatísticas."
+        }), 500
+
+    finally:
+
         if cursor:
             cursor.close()
 
@@ -645,6 +756,18 @@ def publicar_foto():
             "sucesso": False,
             "mensagem": "Formato de imagem não permitido. Use PNG, JPG, JPEG, GIF ou WEBP."
         }), 400
+
+    # Moderação: lê o arquivo, manda pra Sightengine e só segue se aprovar.
+    # Nada é salvo no disco nem no banco se a imagem for bloqueada.
+    conteudo = arquivo.read()
+    arquivo.seek(0)
+
+    aprovada, motivo = verificar_imagem_adequada(arquivo.filename, conteudo)
+    if not aprovada:
+        return jsonify({
+            "sucesso": False,
+            "mensagem": motivo
+        }), 422
 
     # Gera um nome de arquivo único pra evitar que duas fotos com o
     # mesmo nome se sobrescrevam no disco. secure_filename() limpa
@@ -1410,38 +1533,70 @@ def marcar_mensagem_lida(id_mensagem):
 
 
 
-def verificar_imagem_adequada():
+# ================= MODERAÇÃO DE IMAGEM (SIGHTENGINE) =================
+#
+# Manda a imagem pra Sightengine ANTES de salvar no disco/banco.
+# Retorna (aprovada, motivo):
+#   (True,  None)      -> pode publicar
+#   (False, "texto")   -> bloqueada (motivo mostrado pra gestão)
+# Se a verificação falhar (sem chave, sem internet, erro da API) a foto
+# NÃO é publicada: melhor bloquear do que deixar passar sem checar.
+
+LIMITE_NUDEZ_EXPLICITA = 0.5   # sexual_activity, sexual_display, erotica
+LIMITE_NUDEZ_SUGESTIVA = 0.7   # very_suggestive
+LIMITE_OFENSIVO = 0.5          # nazi, supremacist, terrorist, etc.
+LIMITE_GORE = 0.5              # sangue / violência
+
+
+def verificar_imagem_adequada(nome_arquivo, conteudo):
+
+    if not SIGHTENGINE_USER or not SIGHTENGINE_SECRET:
+        print("Sightengine: SIGHTENGINE_USER/SIGHTENGINE_SECRET não configurados.")
+        return False, "Moderação de imagens não configurada no servidor."
+
     try:
-        # Envia a URL para o endpoint de omni-moderation da OpenAI
-        resposta = client.moderations.create(
-            model="omni-moderation-latest",
-            input=[
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": url_da_imagem
-                    }
-                }
-            ]
+        resposta = requests.post(
+            "https://api.sightengine.com/1.0/check.json",
+            files={"media": (nome_arquivo, conteudo)},
+            data={
+                "models": "nudity-2.1,offensive-2.0,gore-2.0",
+                "api_user": SIGHTENGINE_USER,
+                "api_secret": SIGHTENGINE_SECRET
+            },
+            timeout=20
         )
-        
-        resultado = resposta.results[0]
-        
-        # 'flagged' retorna True se a imagem violar as regras (for inadequada)
-        if resultado.flagged:
-            print("❌ Imagem BLOQUEADA! Conteúdo inadequado detectado.")
-            # Exibe quais categorias foram violadas (ex: sexual, violence)
-            for categoria, violada in resultado.categories.__dict__.items():
-                if violada:
-                    print(f"   -> Categoria violada: {categoria}")
-            return False
-        else:
-            print("✅ Imagem APROVADA! Conteúdo seguro.")
-            return True
-            
-    except Exception as e:
-        print(f"Erro ao processar moderação: {e}")
-        return False
+        resultado = resposta.json()
+
+    except (requests.RequestException, ValueError) as erro:
+        print(f"Erro ao chamar a Sightengine: {erro}")
+        return False, "Não foi possível verificar a imagem agora. Tente de novo."
+
+    if resultado.get("status") != "success":
+        print(f"Sightengine respondeu com erro: {resultado}")
+        return False, "Não foi possível verificar a imagem agora. Tente de novo."
+
+    # Nudez / conteúdo sexual
+    nudez = resultado.get("nudity", {})
+    explicito = max(
+        nudez.get("sexual_activity", 0),
+        nudez.get("sexual_display", 0),
+        nudez.get("erotica", 0)
+    )
+    if explicito >= LIMITE_NUDEZ_EXPLICITA or \
+            nudez.get("very_suggestive", 0) >= LIMITE_NUDEZ_SUGESTIVA:
+        return False, "Imagem bloqueada: conteúdo sexual ou nudez."
+
+    # Símbolos/gestos ofensivos (todas as chaves são probabilidades 0–1)
+    ofensivo = resultado.get("offensive", {})
+    if any(isinstance(v, (int, float)) and v >= LIMITE_OFENSIVO
+           for v in ofensivo.values()):
+        return False, "Imagem bloqueada: conteúdo ofensivo."
+
+    # Violência / sangue
+    if resultado.get("gore", {}).get("prob", 0) >= LIMITE_GORE:
+        return False, "Imagem bloqueada: conteúdo violento."
+
+    return True, None
 
 
 

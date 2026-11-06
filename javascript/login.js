@@ -41,6 +41,7 @@ async function validarLogin() {
             // Manda usuário e senha pro Flask verificar no banco
             const resposta = await fetch("http://localhost:5000/login_gestao", {
                 method: "POST",
+                credentials: "include", // guarda o cookie de sessão da gestão
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome: usuario, senha: senha })
             });

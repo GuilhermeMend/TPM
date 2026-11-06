@@ -3,12 +3,21 @@
 // Depende de comum.js
 // =====================
 
-// Números do painel (ainda de exemplo, não vêm do banco)
-const totalTurmasExemplo = 6;
-const totalAlunosExemplo = 8;
+// Números do painel (vêm do banco, rota /api/estatisticas)
+async function carregarEstatisticas() {
+    try {
+        const resposta = await fetch(`${API_BASE}/api/estatisticas`);
+        const dados = await resposta.json();
+        if (!dados.sucesso) return;
 
-document.getElementById('stat-turmas').textContent = totalTurmasExemplo;
-document.getElementById('stat-alunos').textContent = totalAlunosExemplo;
+        document.getElementById('stat-turmas').textContent = dados.total_turmas;
+        document.getElementById('stat-alunos').textContent = dados.total_alunos;
+    } catch (erro) {
+        console.error('Erro ao carregar estatísticas:', erro);
+    }
+}
+
+carregarEstatisticas();
 
 // Gestor logado (salvo pelo login.js na hora do login)
 function gestorLogadoId() {
