@@ -6,6 +6,8 @@ import mysql.connector
 import os
 import uuid
 import requests
+import time
+from functools import wraps
 
 # Lê o arquivo .env (se existir) para as chaves e segredos
 try:
@@ -21,6 +23,16 @@ app = Flask(__name__)
 # Defina SECRET_KEY no .env; sem ela, é gerada uma aleatória a cada
 # inicialização (o login da gestão cai sempre que o servidor reinicia).
 app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
+
+# O cookie de sessão não pode ser lido por JavaScript (HttpOnly) e só é
+# enviado em navegação do próprio site (SameSite=Lax), o que também
+# barra CSRF vindo de outros sites. Em produção com HTTPS, defina
+# SESSION_COOKIE_SECURE=1 no .env.
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE=os.environ.get('SESSION_COOKIE_SECURE') == '1'
+)
 
 # Permite que o JavaScript do navegador (Live Server, porta 5501) acesse
 # o Flask e envie o cookie de sessão junto (supports_credentials).
@@ -69,17 +81,157 @@ def conectar_banco():
     return mysql.connector.connect(
 
         # Servidor do banco de dados
-        host="localhost",
+        host=os.environ.get("DB_HOST", "localhost"),
 
         # Usuário do MySQL
-        user="root",
+        user=os.environ.get("DB_USER", "root"),
 
-        # Senha do MySQL
-        password="lea",
+        # Senha do MySQL (defina DB_PASSWORD no .env)
+        password=os.environ.get("DB_PASSWORD", ""),
 
         # Nome do banco utilizado
-        database="banco de dados"
+        database=os.environ.get("DB_NAME", "banco de dados")
     )
+
+
+
+# ================= AUTENTICAÇÃO E PERMISSÕES =================
+#
+# Quem está logado fica guardado na SESSÃO do Flask (cookie assinado com a
+# SECRET_KEY): session['aluno_id'] para aluno e session['gestor_id'] para
+# gestão. O navegador não consegue forjar isso, ao contrário de um id
+# mandado no corpo da requisição.
+#
+# A tabela abaixo diz quem pode chamar cada rota (pelo nome da função).
+# Rota que NÃO está na tabela exige login: o padrão é negar.
+
+ACESSO_PUBLICO = {'login', 'login_gestao', 'servir_imagem', 'sessao_atual', 'logout'}
+
+ACESSO_GESTAO = {
+    'cadastro', 'estatisticas', 'adicionar_turma', 'publicar_foto',
+    'excluir_foto', 'gestao_envia_mensagem', 'listar_alunos',
+    'caixa_entrada_gestao', 'enviadas_gestao'
+}
+
+ACESSO_ALUNO = {
+    'comentar_foto', 'aluno_envia_mensagem',
+    'caixa_entrada_aluno', 'enviadas_aluno'
+}
+
+# Rotas do aluno que têm o id do aluno na URL: só o próprio aluno acessa
+ROTAS_COM_ID_DO_ALUNO = {'caixa_entrada_aluno', 'enviadas_aluno'}
+
+
+def _negar(mensagem, status):
+    return jsonify({"sucesso": False, "mensagem": mensagem}), status
+
+
+@app.before_request
+def verificar_permissao():
+
+    # Pré-requisição do CORS (OPTIONS) e rotas inexistentes passam direto
+    if request.method == 'OPTIONS' or request.endpoint is None:
+        return None
+
+    endpoint = request.endpoint
+
+    # Trava de tentativas nos logins (força bruta)
+    if endpoint in ('login', 'login_gestao') and _login_bloqueado():
+        return _negar("Muitas tentativas. Espere alguns minutos e tente de novo.", 429)
+
+    if endpoint in ACESSO_PUBLICO:
+        return None
+
+    eh_gestor = bool(session.get('gestor_id'))
+    eh_aluno = bool(session.get('aluno_id'))
+
+    if endpoint in ACESSO_GESTAO:
+        if not eh_gestor:
+            return _negar("Acesso restrito à gestão. Faça login como gestão.", 401)
+        return None
+
+    if endpoint in ACESSO_ALUNO:
+        if not eh_aluno:
+            return _negar("Acesso restrito a alunos. Faça login como aluno.", 401)
+        if endpoint in ROTAS_COM_ID_DO_ALUNO and \
+                request.view_args.get('id_aluno') != session.get('aluno_id'):
+            return _negar("Você só pode ver as suas próprias mensagens.", 403)
+        return None
+
+    # Todas as outras: qualquer usuário logado (aluno ou gestão)
+    if not (eh_gestor or eh_aluno):
+        return _negar("Faça login para continuar.", 401)
+
+    return None
+
+
+# ---------- limite de tentativas de login (por IP) ----------
+# Guarda em memória os horários das falhas de cada IP. Passou de
+# MAX_FALHAS_LOGIN dentro da janela, o IP fica bloqueado até a janela esvaziar.
+# (Zera quando o servidor reinicia — suficiente pra um projeto escolar.)
+
+MAX_FALHAS_LOGIN = 5
+JANELA_LOGIN_SEG = 300
+_falhas_login = {}
+
+
+def _falhas_recentes(ip):
+    agora = time.time()
+    recentes = [t for t in _falhas_login.get(ip, []) if agora - t < JANELA_LOGIN_SEG]
+    if recentes:
+        _falhas_login[ip] = recentes
+    else:
+        _falhas_login.pop(ip, None)
+    return recentes
+
+
+def _login_bloqueado():
+    return len(_falhas_recentes(request.remote_addr)) >= MAX_FALHAS_LOGIN
+
+
+@app.after_request
+def contar_falhas_de_login(resposta):
+    if request.endpoint in ('login', 'login_gestao'):
+        ip = request.remote_addr
+        if resposta.status_code == 401:
+            _falhas_login.setdefault(ip, []).append(time.time())
+        elif resposta.status_code == 200:
+            _falhas_login.pop(ip, None)
+    return resposta
+
+
+# ---------- QUEM ESTÁ LOGADO (usado pelo front pra proteger as páginas) ----------
+# Rota: GET /api/sessao
+
+@app.route('/api/sessao', methods=['GET'])
+def sessao_atual():
+
+    if session.get('gestor_id'):
+        return jsonify({
+            "sucesso": True,
+            "tipo": "gestao",
+            "id": session['gestor_id'],
+            "nome": session.get('gestor_nome', '')
+        }), 200
+
+    if session.get('aluno_id'):
+        return jsonify({
+            "sucesso": True,
+            "tipo": "aluno",
+            "id": session['aluno_id'],
+            "nome": session.get('aluno_nome', '')
+        }), 200
+
+    return _negar("Não há login ativo.", 401)
+
+
+# ---------- SAIR ----------
+# Rota: POST /logout — apaga a sessão no servidor
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"sucesso": True}), 200
 
 
 
@@ -89,7 +241,7 @@ def conectar_banco():
 def login():
 
     # Recebe os dados enviados pelo JavaScript
-    dados = request.get_json()
+    dados = request.get_json(silent=True) or {}
 
 
     # Pega o nome enviado pelo usuário
@@ -137,6 +289,10 @@ def login():
 
         # Caso o usuário exista
         if usuario_encontrado:
+
+            session.clear()
+            session['aluno_id'] = usuario_encontrado['id_aluno']
+            session['aluno_nome'] = usuario_encontrado['nome']
 
             return jsonify({
 
@@ -277,14 +433,16 @@ def cadastro():
             "INSERT INTO aluno (nome, senha) VALUES (%s, %s)",
             (nome, generate_password_hash(senha))
         )
+        id_login = cursor.lastrowid
 
-        # Vínculo com a turma
+        # Vínculo com a turma. id_login liga a matrícula ao login que acabou
+        # de ser criado (chave estrangeira: apagar o login apaga a matrícula).
         cursor.execute(
             """
-            INSERT INTO turmas (ra_aluno, nome_aluno, turma)
-            VALUES (%s, %s, %s)
+            INSERT INTO turmas (id_login, ra_aluno, nome_aluno, turma)
+            VALUES (%s, %s, %s, %s)
             """,
-            (ra, nome, turma)
+            (id_login, ra, nome, turma)
         )
 
         conexao.commit()
@@ -324,7 +482,7 @@ def login_gestao():
 
 
     # Recebe os dados enviados pelo JavaScript
-    dados = request.get_json()
+    dados = request.get_json(silent=True) or {}
 
 
     nome_recebido = dados.get('nome')
@@ -375,7 +533,9 @@ def login_gestao():
 
             # Guarda no cookie de sessão que quem fez login é gestão
             # (usado pra proteger rotas como o cadastro de alunos)
+            session.clear()
             session['gestor_id'] = gestor_encontrado['id_gestor']
+            session['gestor_nome'] = gestor_encontrado['nome']
 
 
             return jsonify({
@@ -742,7 +902,7 @@ def publicar_foto():
 
     arquivo = request.files['imagem']
     legenda = request.form.get('legenda', '').strip()
-    gestor_id = request.form.get('gestor_id')
+    gestor_id = session.get('gestor_id')
 
     # Campo de arquivo veio vazio (usuário não escolheu nada)
     if arquivo.filename == '':
@@ -1033,9 +1193,9 @@ def listar_comentarios(id_foto):
 @app.route('/api/fotos/<int:id_foto>/comentarios', methods=['POST'])
 def comentar_foto(id_foto):
 
-    dados = request.get_json()
+    dados = request.get_json(silent=True) or {}
 
-    aluno_id = dados.get('aluno_id')
+    aluno_id = session.get('aluno_id')
     texto = (dados.get('texto') or '').strip()
 
     if not aluno_id or not texto:
@@ -1151,7 +1311,7 @@ def aluno_envia_mensagem():
 
     dados = request.get_json() or {}
 
-    aluno_id = dados.get('aluno_id')
+    aluno_id = session.get('aluno_id')
     assunto = (dados.get('assunto') or '').strip()
     texto = (dados.get('texto') or '').strip()
 
@@ -1218,7 +1378,7 @@ def gestao_envia_mensagem():
 
     dados = request.get_json() or {}
 
-    gestor_id = dados.get('gestor_id')
+    gestor_id = session.get('gestor_id')
     aluno_id = dados.get('aluno_id') or None   # vazio/None = todos
     assunto = (dados.get('assunto') or '').strip()
     texto = (dados.get('texto') or '').strip()
@@ -1506,8 +1666,15 @@ def marcar_mensagem_lida(id_mensagem):
         cursor = conexao.cursor()
 
         cursor.execute(
-            "UPDATE mensagens SET lida = 1 WHERE id_mensagem = %s",
-            (id_mensagem,)
+            """
+            UPDATE mensagens SET lida = 1
+            WHERE id_mensagem = %s
+              AND ( (direcao = 'aluno_para_gestao' AND %s = 1)
+                 OR (direcao = 'gestao_para_aluno' AND id_aluno = %s) )
+            """,
+            (id_mensagem,
+             1 if session.get('gestor_id') else 0,
+             session.get('aluno_id') or -1)
         )
 
         conexao.commit()
@@ -1608,5 +1775,5 @@ if __name__ == "__main__":
     app.run(
         host="localhost",
         port=5000,
-        debug=True
+        debug=os.environ.get("FLASK_DEBUG") == "1"
     )

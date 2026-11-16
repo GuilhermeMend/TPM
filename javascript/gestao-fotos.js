@@ -17,7 +17,7 @@ async function carregarFotosGestao() {
     galeria.innerHTML = '<p class="turma-alunos-vazio">Carregando fotos...</p>';
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/fotos`);
+        const resposta = await apiFetch(`${API_BASE}/api/fotos`);
         const dados = await resposta.json();
 
         if (!dados.sucesso || dados.fotos.length === 0) {
@@ -27,9 +27,9 @@ async function carregarFotosGestao() {
 
         galeria.innerHTML = dados.fotos.map(f => `
             <div class="foto-card">
-                <img src="${API_BASE}${f.url}" alt="${f.legenda || 'Foto do anuário'}" loading="lazy">
+                <img src="${escaparHtml(API_BASE + f.url)}" alt="${escaparHtml(f.legenda || 'Foto do anuário')}" loading="lazy">
                 <div class="foto-card-corpo">
-                    <p class="foto-card-legenda">${f.legenda || '(sem legenda)'}</p>
+                    <p class="foto-card-legenda">${escaparHtml(f.legenda || '(sem legenda)')}</p>
                     <span class="foto-card-meta">${f.total_comentarios} comentário(s)</span>
                     <button class="btn-linha-excluir" onclick="confirmarExclusaoFoto(${f.id_foto})">
                         Excluir
@@ -60,10 +60,9 @@ async function publicarFoto() {
     const formData = new FormData();
     formData.append('imagem', inputArquivo.files[0]);
     formData.append('legenda', legenda);
-    formData.append('gestor_id', gestorLogadoId());
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/fotos`, {
+        const resposta = await apiFetch(`${API_BASE}/api/fotos`, {
             method: 'POST',
             body: formData
         });
@@ -100,7 +99,7 @@ function confirmarExclusaoFoto(idFoto) {
     const btn = document.getElementById('btn-confirmar-exclusao');
     btn.onclick = async () => {
         try {
-            const resposta = await fetch(`${API_BASE}/api/fotos/${idFoto}`, { method: 'DELETE' });
+            const resposta = await apiFetch(`${API_BASE}/api/fotos/${idFoto}`, { method: 'DELETE' });
             const dados = await resposta.json();
 
             if (!dados.sucesso) {

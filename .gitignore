@@ -1,1 +1,10 @@
+# Segredos: NUNCA versionar (chaves, senha do banco)
 .env
+
+# Python
+__pycache__/
+*.pyc
+
+# Fotos enviadas pela gestão (ficam só na máquina do servidor)
+uploads/*
+!uploads/.gitkeep

@@ -42,10 +42,10 @@ async function enviarMensagem() {
     }
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/para-gestao`, {
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/para-gestao`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ aluno_id: alunoLogadoId(), assunto: assunto, texto: texto })
+            body: JSON.stringify({ assunto: assunto, texto: texto })
         });
         const dados = await resposta.json();
 
@@ -85,7 +85,7 @@ async function carregarCaixaEntrada() {
     }
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/aluno/${alunoLogadoId()}`);
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/aluno/${alunoLogadoId()}`);
         const dados = await resposta.json();
 
         if (!dados.sucesso) {
@@ -127,7 +127,7 @@ async function abrirMensagem(item) {
     item.classList.remove('nao-lida');
 
     try {
-        await fetch(`${API_BASE}/api/mensagens/${item.dataset.id}/lida`, { method: 'PATCH' });
+        await apiFetch(`${API_BASE}/api/mensagens/${item.dataset.id}/lida`, { method: 'PATCH' });
         atualizarBadges(document.querySelectorAll('.msg-item.nao-lida').length);
     } catch (erro) {
         console.error('Erro ao marcar como lida:', erro);
@@ -158,7 +158,7 @@ async function carregarEnviadas() {
     lista.innerHTML = '<p class="msg-vazia">Carregando mensagens...</p>';
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/aluno/${alunoLogadoId()}/enviadas`);
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/aluno/${alunoLogadoId()}/enviadas`);
         const dados = await resposta.json();
 
         if (!dados.sucesso) {

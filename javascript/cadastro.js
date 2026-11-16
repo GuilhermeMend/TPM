@@ -3,17 +3,12 @@
 
 const mensagem = document.getElementById("mensagem");
 
-// Sem login de gestão neste navegador: volta pro login
-if (!sessionStorage.getItem("gestor_id")) {
-    window.location.href = "login.html";
-}
-
 // Preenche o <select> com as turmas que existem no banco
 async function carregarTurmas() {
     const select = document.getElementById("turma");
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/turmas`);
+        const resposta = await apiFetch(`${API_BASE}/api/turmas`);
         const dados = await resposta.json();
 
         select.innerHTML = '<option value="">Escolha a turma</option>';
@@ -48,7 +43,7 @@ document.getElementById("btnCadastro").addEventListener("click", async function 
 
     try {
 
-        const resposta = await fetch(`${API_BASE}/cadastro`, {
+        const resposta = await apiFetch(`${API_BASE}/cadastro`, {
             method: "POST",
             credentials: "include", // envia o cookie de sessão da gestão
             headers: { "Content-Type": "application/json" },

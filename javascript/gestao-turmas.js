@@ -7,9 +7,9 @@ async function carregarTurmasBotoes() {
     const container = document.getElementById('turmas-botoes');
 
     try {
-        // fetch() faz a requisição HTTP pro Flask (rota /api/turmas do app.py).
+        // apiFetch() faz a requisição HTTP pro Flask (rota /api/turmas do app.py).
         // await pausa aqui até a resposta chegar.
-        const resposta = await fetch(`${API_BASE}/api/turmas`);
+        const resposta = await apiFetch(`${API_BASE}/api/turmas`);
 
         // .json() transforma o corpo da resposta (que vem como texto) em
         // objeto/array do JavaScript. Também é assíncrono, por isso o await.
@@ -53,7 +53,7 @@ async function mostrarAlunosTurma(turma, btn) {
     try {
         // encodeURIComponent evita problema se o nome da turma tiver espaço,
         // acento ou caractere especial dentro da URL
-        const resposta = await fetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
+        const resposta = await apiFetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
         const dados = await resposta.json();
 
         if (!dados.sucesso || dados.alunos.length === 0) {
@@ -65,14 +65,14 @@ async function mostrarAlunosTurma(turma, btn) {
         // diferente da página do aluno (home.js), que só mostra o nome.
         painel.innerHTML = `
             <div class="turma-painel-topo">
-                <h3>${formatarNomeTurma(turma)}</h3>
+                <h3>${escaparHtml(formatarNomeTurma(turma))}</h3>
             </div>
             ${dados.alunos.map(a => `
                 <div class="turma-aluno-item">
                     <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
                     <div class="turma-aluno-info">
-                        <span class="turma-aluno-nome">${a.nome_aluno}</span>
-                        <span class="turma-aluno-ra">RA: ${a.ra_aluno}</span>
+                        <span class="turma-aluno-nome">${escaparHtml(a.nome_aluno)}</span>
+                        <span class="turma-aluno-ra">RA: ${escaparHtml(a.ra_aluno)}</span>
                     </div>
                 </div>
             `).join('')}
@@ -106,7 +106,7 @@ async function adicionarTurma() {
     }
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/turmas`, {
+        const resposta = await apiFetch(`${API_BASE}/api/turmas`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ codigo, nome, professor, turno, cor })

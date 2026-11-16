@@ -8,7 +8,7 @@ async function carregarTurmas() {
 
     try {
         // Pede pro Flask (rota /api/turmas do app.py) a lista de turmas
-        const resposta = await fetch(`${API_BASE}/api/turmas`);
+        const resposta = await apiFetch(`${API_BASE}/api/turmas`);
         // Converte a resposta (JSON em texto) pra objeto/array do JS
         const dados = await resposta.json();
 
@@ -45,7 +45,7 @@ async function mostrarAlunosTurma(turma, btn) {
 
     try {
         // encodeURIComponent evita problema se a turma tiver espaço/acento na URL
-        const resposta = await fetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
+        const resposta = await apiFetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
         const dados = await resposta.json();
 
         if (!dados.sucesso || dados.alunos.length === 0) {
@@ -59,7 +59,7 @@ async function mostrarAlunosTurma(turma, btn) {
         painel.innerHTML = dados.alunos.map(a => `
             <div class="turma-aluno-item">
                 <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
-                ${a.nome_aluno}
+                ${escaparHtml(a.nome_aluno)}
             </div>
         `).join('');
 

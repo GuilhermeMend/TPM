@@ -6,7 +6,7 @@
 // Números do painel (vêm do banco, rota /api/estatisticas)
 async function carregarEstatisticas() {
     try {
-        const resposta = await fetch(`${API_BASE}/api/estatisticas`);
+        const resposta = await apiFetch(`${API_BASE}/api/estatisticas`);
         const dados = await resposta.json();
         if (!dados.sucesso) return;
 
@@ -46,7 +46,7 @@ async function carregarDestinatarios() {
     const select = document.getElementById('av-dest');
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/alunos`);
+        const resposta = await apiFetch(`${API_BASE}/api/alunos`);
         const dados = await resposta.json();
         if (!dados.sucesso) return;
 
@@ -80,11 +80,10 @@ async function enviarAviso() {
     }
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/para-aluno`, {
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/para-aluno`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                gestor_id: gestorLogadoId(),
                 aluno_id: alunoId || null,
                 assunto: assunto,
                 texto: texto
@@ -123,7 +122,7 @@ async function carregarCaixaEntrada() {
     const lista = document.getElementById('caixa-lista');
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/gestao`);
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/gestao`);
         const dados = await resposta.json();
 
         if (!dados.sucesso) {
@@ -145,7 +144,7 @@ async function carregarCaixaEntrada() {
                 </div>
                 <p class="msg-texto">${escaparHtml(m.texto)}</p>
                 <div class="msg-acoes">
-                    <button class="btn-responder" onclick="event.stopPropagation(); responder(${m.id_aluno}, '${escaparHtml(m.assunto).replace(/'/g, '&#39;')}')">↩ Responder</button>
+                    <button class="btn-responder" data-aluno="${Number(m.id_aluno)}" data-assunto="${escaparHtml(m.assunto)}" onclick="event.stopPropagation(); responderDoBotao(this)">↩ Responder</button>
                 </div>
             </div>
         `).join('');
@@ -168,11 +167,17 @@ async function abrirMensagem(item) {
     item.classList.remove('nao-lida');
 
     try {
-        await fetch(`${API_BASE}/api/mensagens/${item.dataset.id}/lida`, { method: 'PATCH' });
+        await apiFetch(`${API_BASE}/api/mensagens/${item.dataset.id}/lida`, { method: 'PATCH' });
         atualizarBadges(document.querySelectorAll('.msg-item.nao-lida').length);
     } catch (erro) {
         console.error('Erro ao marcar como lida:', erro);
     }
+}
+
+// Lê aluno/assunto dos atributos data-* do botão (texto do usuário nunca
+// vai dentro de um onclick — era uma brecha de XSS)
+function responderDoBotao(botao) {
+    responder(botao.dataset.aluno, botao.dataset.assunto);
 }
 
 // Leva pro formulário já com o aluno e o assunto preenchidos
@@ -201,7 +206,7 @@ async function carregarEnviadas() {
     lista.innerHTML = '<p class="msg-vazia">Carregando mensagens...</p>';
 
     try {
-        const resposta = await fetch(`${API_BASE}/api/mensagens/gestao/enviadas`);
+        const resposta = await apiFetch(`${API_BASE}/api/mensagens/gestao/enviadas`);
         const dados = await resposta.json();
 
         if (!dados.sucesso) {

@@ -1,3 +1,7 @@
+// URL do back-end Flask: mesmo endereço da página (localhost ou 127.0.0.1),
+// senão o navegador não guarda o cookie de login.
+const API_BASE = `http://${window.location.hostname || "localhost"}:5000`;
+
 // Guarda se o tipo de login escolhido é "aluno" ou "admin" (gestão).
 // Começa em "aluno" porque é a opção que já vem marcada na tela.
 let tipoSelecionado = "aluno";
@@ -39,7 +43,7 @@ async function validarLogin() {
     if (tipoSelecionado === "admin") {
         try {
             // Manda usuário e senha pro Flask verificar no banco
-            const resposta = await fetch("http://localhost:5000/login_gestao", {
+            const resposta = await fetch(`${API_BASE}/login_gestao`, {
                 method: "POST",
                 credentials: "include", // guarda o cookie de sessão da gestão
                 headers: { "Content-Type": "application/json" },
@@ -52,6 +56,7 @@ async function validarLogin() {
                 // Login certo: guarda o id e o nome do gestor no
                 // sessionStorage (fica disponível enquanto a aba
                 // estiver aberta) e manda pra tela de gestão
+                sessionStorage.clear();
                 sessionStorage.setItem("gestor_id", dados.gestor_id);
                 sessionStorage.setItem("gestor_nome", usuario);
                 window.location.href = "gestao.html";
@@ -72,8 +77,9 @@ async function validarLogin() {
     /* LOGIN ALUNO — consulta tabela aluno no banco */
     else if (tipoSelecionado === "aluno") {
         try {
-            const resposta = await fetch("http://localhost:5000/login", {
+            const resposta = await fetch(`${API_BASE}/login`, {
                 method: "POST",
+                credentials: "include", // guarda o cookie de sessão do aluno
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome: usuario, senha: senha })
             });
@@ -81,6 +87,7 @@ async function validarLogin() {
             const dados = await resposta.json();
 
             if (dados.sucesso) {
+                sessionStorage.clear();
                 sessionStorage.setItem("usuario_id", dados.usuario_id);
                 sessionStorage.setItem("usuario_nome", usuario);
                 window.location.href = "home.html";

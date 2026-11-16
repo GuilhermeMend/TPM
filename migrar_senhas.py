@@ -12,8 +12,18 @@ PREFIXOS_HASH = ("scrypt:", "pbkdf2:")
 
 
 def migrar(cursor, tabela, coluna_id):
-    # O hash tem ~160 caracteres; a coluna original era varchar(50)
-    cursor.execute(f"ALTER TABLE `{tabela}` MODIFY `senha` VARCHAR(255)")
+    # O hash tem ~160 caracteres; a coluna original era varchar(50).
+    # Só altera se ainda for pequena (no tcc.sql novo ela já nasce com 255).
+    cursor.execute(
+        """
+        SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'senha'
+        """,
+        (tabela,)
+    )
+    tamanho = cursor.fetchone()[0]
+    if tamanho is not None and tamanho < 255:
+        cursor.execute(f"ALTER TABLE `{tabela}` MODIFY `senha` VARCHAR(255)")
 
     cursor.execute(f"SELECT `{coluna_id}`, `senha` FROM `{tabela}`")
     linhas = cursor.fetchall()

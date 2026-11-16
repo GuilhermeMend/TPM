@@ -1,196 +1,162 @@
--- --------------------------------------------------------
--- Servidor:                     127.0.0.1
--- Versão do servidor:           12.2.2-MariaDB - MariaDB Server
--- OS do Servidor:               Win64
--- HeidiSQL Versão:              12.14.0.7165
--- --------------------------------------------------------
+-- =====================================================================
+-- TPM — banco de dados completo (MySQL 8+ / MariaDB 10.4+)
+--
+-- Como usar:
+--   1) Rode este arquivo inteiro (HeidiSQL: Arquivo > Executar arquivo SQL,
+--      ou:  mysql -u root -p < tcc.sql).
+--      Ele pode ser rodado mais de uma vez: só cria o que ainda não existe
+--      e NÃO apaga nada.
+--   2) Crie o primeiro usuário da gestão (pede nome e senha no terminal):
+--          python criar_gestor.py
+--      Os alunos são cadastrados depois, pela própria gestão (cadastro.html).
+--
+-- Já tem um banco antigo (de antes desta versão)?
+--   Rode:  python atualizar_banco.py   (e, se as senhas ainda estiverem em
+--   texto puro, também:  python migrar_senhas.py)
+--
+-- Este arquivo NÃO traz nenhum usuário nem senha: nada de login dentro
+-- do repositório.
+-- =====================================================================
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
--- Copiando estrutura do banco de dados para banco de dados
-CREATE DATABASE IF NOT EXISTS `banco de dados` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_uca1400_ai_ci */;
+CREATE DATABASE IF NOT EXISTS `banco de dados` DEFAULT CHARACTER SET utf8mb4;
 USE `banco de dados`;
 
--- Copiando estrutura para tabela banco de dados.aluno
+
+-- ---------------------------------------------------------------------
+-- Login do aluno.  `senha` guarda o HASH (~160 caracteres), nunca o texto.
+-- `nome` é único porque o login procura o aluno pelo nome.
+-- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `aluno` (
-  `id_aluno` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(50) DEFAULT NULL,
-  `senha` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id_aluno`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+  `id_aluno` INT NOT NULL AUTO_INCREMENT,
+  `nome`     VARCHAR(50)  NOT NULL,
+  `senha`    VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id_aluno`),
+  UNIQUE KEY `uq_aluno_nome` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela banco de dados.aluno: ~5 rows (aproximadamente)
-INSERT INTO `aluno` (`id_aluno`, `nome`, `senha`) VALUES
-	(2, 'aluno', 'lea'),
-	(24, 'DAVI', '018KIWI'),
-	(27, 'Eduardo Leandro Nascimento', '1234'),
-	(28, 'Guilherme Mendonça', 'senha'),
-	(29, 'Thalys Lopes', 'Marvel');
 
--- Copiando estrutura para tabela banco de dados.comentarios
-CREATE TABLE IF NOT EXISTS `comentarios` (
-  `id_comentario` int(11) NOT NULL AUTO_INCREMENT,
-  `id_foto` int(11) NOT NULL,
-  `id_aluno` int(11) NOT NULL,
-  `texto` varchar(500) NOT NULL,
-  `data_comentario` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_comentario`),
-  KEY `id_foto` (`id_foto`),
-  KEY `id_aluno` (`id_aluno`),
-  CONSTRAINT `1` FOREIGN KEY (`id_foto`) REFERENCES `fotos` (`id_foto`) ON DELETE CASCADE,
-  CONSTRAINT `2` FOREIGN KEY (`id_aluno`) REFERENCES `aluno` (`id_aluno`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-
--- Copiando dados para a tabela banco de dados.comentarios: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela banco de dados.fotos
-CREATE TABLE IF NOT EXISTS `fotos` (
-  `id_foto` int(11) NOT NULL AUTO_INCREMENT,
-  `nome_arquivo` varchar(255) NOT NULL,
-  `legenda` varchar(255) DEFAULT NULL,
-  `id_gestor` int(11) DEFAULT NULL,
-  `data_postagem` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_foto`),
-  KEY `id_gestor` (`id_gestor`),
-  CONSTRAINT `1` FOREIGN KEY (`id_gestor`) REFERENCES `gestão` (`id_gestor`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-
--- Copiando dados para a tabela banco de dados.fotos: ~0 rows (aproximadamente)
-
--- Copiando estrutura para tabela banco de dados.gestão
+-- ---------------------------------------------------------------------
+-- Login da gestão (também com hash).
+-- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gestão` (
-  `id_gestor` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(50) DEFAULT NULL,
-  `senha` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id_gestor`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+  `id_gestor` INT NOT NULL AUTO_INCREMENT,
+  `nome`      VARCHAR(50)  NOT NULL,
+  `senha`     VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id_gestor`),
+  UNIQUE KEY `uq_gestao_nome` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela banco de dados.gestão: ~2 rows (aproximadamente)
-INSERT INTO `gestão` (`id_gestor`, `nome`, `senha`) VALUES
-	(1, 'prof', 'admin'),
-	(2, 'black', '01867');
 
--- Copiando estrutura para tabela banco de dados.turmas
+-- ---------------------------------------------------------------------
+-- Turmas criadas pelo botão "+ Adicionar turma" (existem mesmo vazias).
+-- O `codigo` tem que ser igual ao valor de turmas.turma (ex: 3_ano_B).
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `turmas_cadastradas` (
+  `id_turma`     INT NOT NULL AUTO_INCREMENT,
+  `codigo`       VARCHAR(50)  NOT NULL,
+  `nome`         VARCHAR(100) NOT NULL,
+  `professor`    VARCHAR(100) NOT NULL,
+  `turno`        VARCHAR(20)  NOT NULL,
+  `cor`          VARCHAR(100) DEFAULT NULL,
+  `data_criacao` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_turma`),
+  UNIQUE KEY `uq_turmas_cadastradas_codigo` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- ---------------------------------------------------------------------
+-- Matrícula: 1 linha por aluno (RA + turma).
+--   id_login -> aluno.id_aluno: liga a matrícula ao login do aluno.
+--               Apagar o login apaga a matrícula junto (CASCADE).
+--               Pode ser NULL só em matrículas antigas/de exemplo, que
+--               ainda não têm login.
+--   ra_aluno é único: o mesmo RA não entra duas vezes.
+-- (O nome da coluna id_aluno foi mantido porque o app.py e o front já usam.)
+-- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `turmas` (
-  `id_aluno` int(11) NOT NULL AUTO_INCREMENT,
-  `ra_aluno` varchar(50) DEFAULT NULL,
-  `nome_aluno` varchar(50) DEFAULT NULL,
-  `turma` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id_aluno`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+  `id_aluno`   INT NOT NULL AUTO_INCREMENT,
+  `id_login`   INT DEFAULT NULL,
+  `ra_aluno`   VARCHAR(50) DEFAULT NULL,
+  `nome_aluno` VARCHAR(50) DEFAULT NULL,
+  `turma`      VARCHAR(50) DEFAULT NULL,
+  PRIMARY KEY (`id_aluno`),
+  UNIQUE KEY `uq_turmas_ra` (`ra_aluno`),
+  KEY `idx_turmas_turma` (`turma`),
+  CONSTRAINT `fk_turmas_login` FOREIGN KEY (`id_login`)
+    REFERENCES `aluno` (`id_aluno`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela banco de dados.turmas: ~6 rows (aproximadamente)
-INSERT INTO `turmas` (`id_aluno`, `ra_aluno`, `nome_aluno`, `turma`) VALUES
-	(3, '98765321', 'davi', '3_ano_B'),
-	(4, '45678997', 'vitoria', '3_ano_B'),
-	(5, '23664674', 'felipe', '8_ano_c'),
-	(6, '329574475', 'ana', '8_ano_c'),
-	(7, '443847577', 'fernando', '6_ano_c'),
-	(8, '275787257', 'maria', '6_ano_c');
 
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+-- ---------------------------------------------------------------------
+-- Fotos publicadas pela gestão.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fotos` (
+  `id_foto`       INT NOT NULL AUTO_INCREMENT,
+  `nome_arquivo`  VARCHAR(255) NOT NULL,
+  `legenda`       VARCHAR(255) DEFAULT NULL,
+  `id_gestor`     INT DEFAULT NULL,
+  `data_postagem` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_foto`),
+  KEY `idx_fotos_gestor` (`id_gestor`),
+  CONSTRAINT `fk_fotos_gestor` FOREIGN KEY (`id_gestor`)
+    REFERENCES `gestão` (`id_gestor`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- =====================================================
--- Tabela nova para o recurso de mensagens (caixa de entrada)
--- Rode este script no mesmo banco onde já estão as
--- tabelas `aluno`, `gestão`, `turmas`, `fotos` e `comentarios`.
--- =====================================================
 
--- Mensagens trocadas entre alunos (home) e gestão.
---
--- direcao = 'aluno_para_gestao'
---     id_aluno  = aluno que ESCREVEU a mensagem
---     id_gestor = NULL (qualquer gestor vê na caixa de entrada)
---
--- direcao = 'gestao_para_aluno'
---     id_aluno  = aluno que RECEBE (NULL = todos os alunos)
---     id_gestor = gestor que escreveu
---
--- lida só é usada em mensagens individuais (aluno -> gestão e
--- gestão -> um aluno). Aviso para "todos" aparece sempre como lido.
-CREATE TABLE mensagens (
-    id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
-    direcao ENUM('aluno_para_gestao', 'gestao_para_aluno') NOT NULL,
-    id_aluno INT NULL,
-    id_gestor INT NULL,
-    assunto VARCHAR(150) NOT NULL,
-    texto VARCHAR(2000) NOT NULL,
-    lida TINYINT(1) NOT NULL DEFAULT 0,
-    data_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
-        ON DELETE CASCADE,
-    FOREIGN KEY (id_gestor) REFERENCES gestão(id_gestor)
-        ON DELETE SET NULL
-);
+-- ---------------------------------------------------------------------
+-- Comentários dos alunos nas fotos (somem junto com a foto ou o aluno).
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `comentarios` (
+  `id_comentario`   INT NOT NULL AUTO_INCREMENT,
+  `id_foto`         INT NOT NULL,
+  `id_aluno`        INT NOT NULL,
+  `texto`           VARCHAR(500) NOT NULL,
+  `data_comentario` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_comentario`),
+  KEY `idx_comentarios_foto` (`id_foto`),
+  KEY `idx_comentarios_aluno` (`id_aluno`),
+  CONSTRAINT `fk_comentarios_foto` FOREIGN KEY (`id_foto`)
+    REFERENCES `fotos` (`id_foto`) ON DELETE CASCADE,
+  CONSTRAINT `fk_comentarios_aluno` FOREIGN KEY (`id_aluno`)
+    REFERENCES `aluno` (`id_aluno`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- =====================================================
--- Tabelas novas para o recurso de fotos e comentários
--- Rode este script no mesmo banco onde já estão as
--- tabelas `aluno`, `gestão` e `turmas`.
--- =====================================================
 
--- Fotos publicadas pela gestão
-CREATE TABLE fotos (
-    id_foto INT AUTO_INCREMENT PRIMARY KEY,
-    nome_arquivo VARCHAR(255) NOT NULL,
-    legenda VARCHAR(255),
-    id_gestor INT,
-    data_postagem DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_gestor) REFERENCES gestão(id_gestor)
-        ON DELETE SET NULL
-);
+-- ---------------------------------------------------------------------
+-- Mensagens entre alunos e gestão.
+--   direcao = 'aluno_para_gestao': id_aluno = quem escreveu, id_gestor NULL
+--   direcao = 'gestao_para_aluno': id_aluno = quem recebe (NULL = todos),
+--                                  id_gestor = quem escreveu
+-- `lida` só vale pra mensagens individuais.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mensagens` (
+  `id_mensagem` INT NOT NULL AUTO_INCREMENT,
+  `direcao`     ENUM('aluno_para_gestao', 'gestao_para_aluno') NOT NULL,
+  `id_aluno`    INT DEFAULT NULL,
+  `id_gestor`   INT DEFAULT NULL,
+  `assunto`     VARCHAR(150)  NOT NULL,
+  `texto`       VARCHAR(2000) NOT NULL,
+  `lida`        TINYINT(1) NOT NULL DEFAULT 0,
+  `data_envio`  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_mensagem`),
+  KEY `idx_mensagens_aluno` (`id_aluno`),
+  KEY `idx_mensagens_gestor` (`id_gestor`),
+  CONSTRAINT `fk_mensagens_aluno` FOREIGN KEY (`id_aluno`)
+    REFERENCES `aluno` (`id_aluno`) ON DELETE CASCADE,
+  CONSTRAINT `fk_mensagens_gestor` FOREIGN KEY (`id_gestor`)
+    REFERENCES `gestão` (`id_gestor`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Comentários dos alunos em cada foto
-CREATE TABLE comentarios (
-    id_comentario INT AUTO_INCREMENT PRIMARY KEY,
-    id_foto INT NOT NULL,
-    id_aluno INT NOT NULL,
-    texto VARCHAR(500) NOT NULL,
-    data_comentario DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_foto) REFERENCES fotos(id_foto)
-        ON DELETE CASCADE,
-    FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
-        ON DELETE CASCADE
-);
 
--- =====================================================
--- Tabela para as turmas criadas pelo botão "+ Adicionar turma"
--- (gestao-turmas.html). Rode no mesmo banco das outras tabelas.
---
--- Por que existe: a tabela `turmas` tem 1 linha POR ALUNO
--- (id_aluno, ra_aluno, nome_aluno, turma), então uma turma só
--- "existe" lá depois que tem aluno. Esta tabela guarda a turma
--- em si (código, nome, professor, turno, cor), mesmo vazia.
---
--- O `codigo` tem que ser igual ao valor da coluna `turma` da tabela
--- `turmas` (ex: 3_ano_B) para os alunos aparecerem nela.
--- =====================================================
-CREATE TABLE turmas_cadastradas (
-    id_turma INT AUTO_INCREMENT PRIMARY KEY,
-    codigo VARCHAR(50) NOT NULL UNIQUE,
-    nome VARCHAR(100) NOT NULL,
-    professor VARCHAR(100) NOT NULL,
-    turno VARCHAR(20) NOT NULL,
-    cor VARCHAR(100),
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- =====================================================
--- Senhas com hash: a coluna precisa de mais espaço (o hash tem
--- ~160 caracteres). Depois de rodar este script, rode UMA vez
--- `python migrar_senhas.py` para converter as senhas de exemplo.
--- =====================================================
-ALTER TABLE `aluno` MODIFY `senha` VARCHAR(255);
-ALTER TABLE `gestão` MODIFY `senha` VARCHAR(255);
+-- ---------------------------------------------------------------------
+-- Dados de exemplo: só listas de turma fictícias (sem login e sem senha),
+-- pra o painel não ficar vazio. Pode apagar quando quiser.
+-- INSERT IGNORE: rodar de novo não duplica (o RA é único).
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `turmas` (`ra_aluno`, `nome_aluno`, `turma`) VALUES
+  ('98765321',  'davi',     '3_ano_B'),
+  ('45678997',  'vitoria',  '3_ano_B'),
+  ('23664674',  'felipe',   '8_ano_c'),
+  ('329574475', 'ana',      '8_ano_c'),
+  ('443847577', 'fernando', '6_ano_c'),
+  ('275787257', 'maria',    '6_ano_c');
