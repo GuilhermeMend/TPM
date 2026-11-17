@@ -107,3 +107,39 @@
 .btn-tema:hover {
     background: rgba(255,255,255,0.16);
 }
+
+/* ---- Item 3: botões e etiquetas novas no tema escuro ---- */
+[data-tema="escuro"] .btn-linha-editar {
+    background-color: #1b2438;
+    border-color: #26314a;
+    color: #93c5fd;
+}
+
+[data-tema="escuro"] .btn-linha-editar:hover {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+[data-tema="escuro"] .foto-turma-badge,
+[data-tema="escuro"] .foto-turma-badge.geral {
+    background-color: #1b2438;
+    color: #93c5fd;
+}
+
+[data-tema="escuro"] .gestao-comentario-nome {
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .gestao-comentario,
+[data-tema="escuro"] .turma-aluno-item {
+    border-color: #26314a;
+}
+
+[data-tema="escuro"] .foto-filtro select {
+    background-color: #1b2438;
+    border-color: #26314a;
+    color: #e2e8f0;
+}
+
+[data-tema="escuro"] .turma-responsavel { color: #94a3b8; }
+[data-tema="escuro"] .turma-responsavel strong { color: #e2e8f0; }

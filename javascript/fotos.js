@@ -29,6 +29,7 @@ async function carregarFotos() {
             <div class="foto-card" data-id="${f.id_foto}" data-legenda="${escaparHtml(f.legenda || '')}" data-url="${escaparHtml(API_BASE + f.url)}" onclick="abrirFotoDoCard(this)">
                 <img src="${escaparHtml(API_BASE + f.url)}" alt="${escaparHtml(f.legenda || 'Foto do anuário')}" loading="lazy">
                 <div class="foto-card-corpo">
+                    <span class="foto-turma-badge ${f.turma ? '' : 'geral'}">${f.turma ? escaparHtml(formatarNomeTurma(f.turma)) : 'Todas as turmas'}</span>
                     <p class="foto-card-legenda">${escaparHtml(f.legenda || '(sem legenda)')}</p>
                     <span class="foto-card-meta">💬 ${f.total_comentarios} comentário(s)</span>
                 </div>

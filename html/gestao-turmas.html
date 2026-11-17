@@ -131,6 +131,125 @@
     </div>
 
 
+    <!-- ========================
+         MODAL — EDITAR TURMA
+    ======================== -->
+    <div class="modal-overlay" id="modal-editar-turma">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Editar Turma</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-editar-turma')">✕</button>
+            </div>
+            <div class="campo">
+                <label>Código da turma</label>
+                <input type="text" id="turma-edit-codigo" disabled>
+            </div>
+            <p class="modal-aviso">O código não pode ser alterado, porque ele liga a turma aos alunos e às fotos.</p>
+            <div class="campo">
+                <label>Nome completo</label>
+                <input type="text" id="turma-edit-nome" placeholder="Ex: 5º Ano A">
+            </div>
+            <div class="campo">
+                <label>Professor responsável</label>
+                <input type="text" id="turma-edit-prof" placeholder="Ex: Prof. João Silva">
+            </div>
+            <div class="campo">
+                <label>Turno</label>
+                <select id="turma-edit-turno">
+                    <option>Manhã</option>
+                    <option>Tarde</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Cor do cartão</label>
+                <select id="turma-edit-cor">
+                    <option value="linear-gradient(135deg,#1d4ed8,#60a5fa)">Azul</option>
+                    <option value="linear-gradient(135deg,#7c3aed,#a855f7)">Roxo</option>
+                    <option value="linear-gradient(135deg,#059669,#34d399)">Verde</option>
+                    <option value="linear-gradient(135deg,#dc2626,#f87171)">Vermelho</option>
+                    <option value="linear-gradient(135deg,#d97706,#fbbf24)">Amarelo</option>
+                    <option value="linear-gradient(135deg,#0891b2,#22d3ee)">Ciano</option>
+                    <option value="linear-gradient(135deg,#db2777,#f472b6)">Rosa</option>
+                </select>
+            </div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-editar-turma')">Cancelar</button>
+                <button class="btn-confirmar" onclick="salvarTurma()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         MODAL — EDITAR ALUNO
+    ======================== -->
+    <div class="modal-overlay" id="modal-editar-aluno">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Editar Aluno</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-editar-aluno')">✕</button>
+            </div>
+            <div class="campo">
+                <label>Nome</label>
+                <input type="text" id="aluno-edit-nome" maxlength="50">
+            </div>
+            <p class="modal-aviso">O nome também é o usuário que o aluno digita para entrar.</p>
+            <div class="campo">
+                <label>RA</label>
+                <input type="text" id="aluno-edit-ra" maxlength="50">
+            </div>
+            <div class="campo">
+                <label>Turma</label>
+                <select id="aluno-edit-turma"></select>
+            </div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-editar-aluno')">Cancelar</button>
+                <button class="btn-confirmar" onclick="salvarAluno()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         MODAL — REDEFINIR SENHA DO ALUNO
+    ======================== -->
+    <div class="modal-overlay" id="modal-senha-aluno">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Redefinir senha</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-senha-aluno')">✕</button>
+            </div>
+            <p class="modal-aviso" style="margin-top:0">Aluno: <strong id="senha-aluno-nome"></strong></p>
+            <div class="campo">
+                <label>Nova senha</label>
+                <input type="password" id="senha-aluno-nova" placeholder="Mínimo de 4 caracteres" autocomplete="new-password">
+            </div>
+            <p class="modal-aviso" id="senha-aluno-aviso"></p>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-senha-aluno')">Cancelar</button>
+                <button class="btn-confirmar" onclick="salvarSenhaAluno()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         MODAL — CONFIRMAR EXCLUSÃO
+    ======================== -->
+    <div class="modal-overlay" id="modal-excluir">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar exclusão</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-excluir')">✕</button>
+            </div>
+            <p style="color:#64748b; font-size:14px; margin-bottom:24px;" id="excluir-msg">
+                Tem certeza que deseja excluir este item?
+            </p>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-excluir')">Cancelar</button>
+                <button class="btn-excluir-confirm" id="btn-confirmar-exclusao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+
     <script src="../javascript/tema.js"></script>
     <script src="../javascript/comum.js"></script>
     <script src="../javascript/gestao-turmas.js"></script>

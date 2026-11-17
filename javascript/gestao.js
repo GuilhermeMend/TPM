@@ -12,6 +12,8 @@ async function carregarEstatisticas() {
 
         document.getElementById('stat-turmas').textContent = dados.total_turmas;
         document.getElementById('stat-alunos').textContent = dados.total_alunos;
+        document.getElementById('stat-professores').textContent = dados.total_professores;
+        document.getElementById('stat-fotos').textContent = dados.total_fotos;
     } catch (erro) {
         console.error('Erro ao carregar estatísticas:', erro);
     }

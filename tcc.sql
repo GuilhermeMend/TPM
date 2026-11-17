@@ -89,14 +89,18 @@ CREATE TABLE IF NOT EXISTS `turmas` (
 
 -- ---------------------------------------------------------------------
 -- Fotos publicadas pela gestão.
+--   turma: código da turma que pode ver a foto (ex: 3_ano_B).
+--          NULL = foto para todas as turmas.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `fotos` (
   `id_foto`       INT NOT NULL AUTO_INCREMENT,
   `nome_arquivo`  VARCHAR(255) NOT NULL,
   `legenda`       VARCHAR(255) DEFAULT NULL,
   `id_gestor`     INT DEFAULT NULL,
+  `turma`         VARCHAR(50) DEFAULT NULL,
   `data_postagem` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_foto`),
+  KEY `idx_fotos_turma` (`turma`),
   KEY `idx_fotos_gestor` (`id_gestor`),
   CONSTRAINT `fk_fotos_gestor` FOREIGN KEY (`id_gestor`)
     REFERENCES `gestão` (`id_gestor`) ON DELETE SET NULL

@@ -11,7 +11,9 @@ O que faz (pode rodar mais de uma vez, não apaga dado nenhum):
   2. preenche id_login casando turmas.nome_aluno com aluno.nome;
   3. cria a chave estrangeira (apagar o login apaga a matrícula);
   4. cria os índices únicos de aluno.nome e turmas.ra_aluno — só se não
-     houver repetidos; se houver, mostra quais são pra você corrigir.
+     houver repetidos; se houver, mostra quais são pra você corrigir;
+  5. cria fotos.turma, que permite publicar foto só para uma turma
+     (as fotos que já existem continuam para todas as turmas).
 
 Se as senhas ainda estiverem em texto puro, rode também:
     python migrar_senhas.py
@@ -117,6 +119,16 @@ def main():
         print("4) Índices únicos")
         criar_unico(cursor, "aluno", "nome", "uq_aluno_nome")
         criar_unico(cursor, "turmas", "ra_aluno", "uq_turmas_ra")
+        conexao.commit()
+
+        print("5) Coluna fotos.turma (foto por turma)")
+        if tem_coluna(cursor, "fotos", "turma"):
+            print("  já existe.")
+        else:
+            cursor.execute("ALTER TABLE `fotos` ADD COLUMN `turma` VARCHAR(50) NULL AFTER `id_gestor`")
+            print("  criada (fotos antigas ficam para todas as turmas).")
+        if not tem_indice(cursor, "fotos", "idx_fotos_turma"):
+            cursor.execute("ALTER TABLE `fotos` ADD KEY `idx_fotos_turma` (`turma`)")
         conexao.commit()
 
         print("\nSituação final")

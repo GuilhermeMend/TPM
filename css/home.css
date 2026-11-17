@@ -969,3 +969,36 @@ footer p {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Etiqueta da turma nos cartões de foto */
+.foto-turma-badge {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.foto-turma-badge.geral {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Professor responsável, logo abaixo do nome da turma */
+.turma-responsavel {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: #475569;
+}
+
+.turma-responsavel strong {
+    color: #1e293b;
+}
+
+.turma-responsavel.sem-ficha {
+    color: #94a3b8;
+    font-style: italic;
+}

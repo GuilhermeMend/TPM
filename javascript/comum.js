@@ -108,3 +108,29 @@ async function sair() {
         })
         .catch(voltarAoLogin);
 })();
+
+// Faz uma chamada JSON à API. Devolve os dados se deu certo; se der erro,
+// mostra a mensagem do servidor num alert e devolve null.
+async function chamarApi(caminho, metodo = 'GET', corpo = null) {
+    try {
+        const opcoes = { method: metodo };
+        if (corpo) {
+            opcoes.headers = { 'Content-Type': 'application/json' };
+            opcoes.body = JSON.stringify(corpo);
+        }
+
+        const resposta = await apiFetch(`${API_BASE}${caminho}`, opcoes);
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            alert(dados.mensagem || 'Não foi possível concluir a ação.');
+            return null;
+        }
+        return dados;
+
+    } catch (erro) {
+        console.error('Erro na API:', erro);
+        alert('Não foi possível falar com o servidor. O Flask está rodando?');
+        return null;
+    }
+}

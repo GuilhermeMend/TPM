@@ -108,9 +108,12 @@ def conectar_banco():
 ACESSO_PUBLICO = {'login', 'login_gestao', 'servir_imagem', 'sessao_atual', 'logout'}
 
 ACESSO_GESTAO = {
-    'cadastro', 'estatisticas', 'adicionar_turma', 'publicar_foto',
+    'cadastro', 'adicionar_turma', 'publicar_foto',
     'excluir_foto', 'gestao_envia_mensagem', 'listar_alunos',
-    'caixa_entrada_gestao', 'enviadas_gestao'
+    'caixa_entrada_gestao', 'enviadas_gestao',
+    'detalhes_turma', 'editar_turma', 'excluir_turma',
+    'editar_aluno', 'redefinir_senha_aluno', 'excluir_aluno',
+    'excluir_comentario'
 }
 
 ACESSO_ALUNO = {
@@ -693,10 +696,22 @@ def estatisticas():
         cursor.execute("SELECT COUNT(*) FROM turmas")
         total_alunos = cursor.fetchone()[0]
 
+        # Professores: nomes diferentes entre as turmas cadastradas
+        cursor.execute(
+            "SELECT COUNT(DISTINCT professor) FROM turmas_cadastradas"
+        )
+        total_professores = cursor.fetchone()[0]
+
+        # Fotos publicadas
+        cursor.execute("SELECT COUNT(*) FROM fotos")
+        total_fotos = cursor.fetchone()[0]
+
         return jsonify({
             "sucesso": True,
             "total_turmas": total_turmas,
-            "total_alunos": total_alunos
+            "total_alunos": total_alunos,
+            "total_professores": total_professores,
+            "total_fotos": total_fotos
         }), 200
 
     except mysql.connector.Error as erro:
@@ -830,7 +845,8 @@ def listar_alunos_da_turma(turma):
         # a variável direto na string (tipo f"... = '{turma}'").
         cursor.execute(
             """
-            SELECT id_aluno, ra_aluno, nome_aluno
+            SELECT id_aluno, ra_aluno, nome_aluno,
+                   (id_login IS NOT NULL) AS tem_login
             FROM turmas
             WHERE turma = %s
             ORDER BY nome_aluno
@@ -840,12 +856,22 @@ def listar_alunos_da_turma(turma):
 
         alunos_lista = cursor.fetchall()
 
+        # Ficha da turma (professor responsável, turno). Turmas antigas, que
+        # só existem pelos alunos, não têm ficha: nesse caso vai None.
+        cursor.execute(
+            """
+            SELECT nome, professor, turno
+            FROM turmas_cadastradas
+            WHERE codigo = %s
+            """,
+            (turma,)
+        )
+        ficha = cursor.fetchone()
+
         return jsonify({
-
             "sucesso": True,
-
+            "turma": ficha,
             "alunos": alunos_lista
-
         }), 200
 
     except mysql.connector.Error as erro:
@@ -902,6 +928,8 @@ def publicar_foto():
 
     arquivo = request.files['imagem']
     legenda = request.form.get('legenda', '').strip()
+    # Turma que pode ver a foto. Vazio = todas as turmas.
+    turma_foto = request.form.get('turma', '').strip() or None
     gestor_id = session.get('gestor_id')
 
     # Campo de arquivo veio vazio (usuário não escolheu nada)
@@ -947,12 +975,20 @@ def publicar_foto():
         conexao = conectar_banco()
         cursor = conexao.cursor()
 
+        if turma_foto and not _turma_existe(cursor, turma_foto):
+            if os.path.exists(caminho_completo):
+                os.remove(caminho_completo)
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Essa turma não existe."
+            }), 400
+
         cursor.execute(
             """
-            INSERT INTO fotos (nome_arquivo, legenda, id_gestor)
-            VALUES (%s, %s, %s)
+            INSERT INTO fotos (nome_arquivo, legenda, id_gestor, turma)
+            VALUES (%s, %s, %s, %s)
             """,
-            (nome_no_disco, legenda, gestor_id)
+            (nome_no_disco, legenda, gestor_id, turma_foto)
         )
 
         conexao.commit()
@@ -1006,21 +1042,45 @@ def listar_fotos():
         conexao = conectar_banco()
         cursor = conexao.cursor(dictionary=True)
 
+        filtros = []
+        parametros = []
+
+        if session.get('gestor_id'):
+            # Gestão vê tudo e pode filtrar por turma (?turma=3_ano_B)
+            filtro_turma = request.args.get('turma', '').strip()
+            if filtro_turma:
+                filtros.append("f.turma = %s")
+                parametros.append(filtro_turma)
+        else:
+            # Aluno: fotos para todos (turma vazia) + as da sua turma
+            turma_do_aluno = _turma_do_aluno(cursor, session.get('aluno_id'))
+            if turma_do_aluno:
+                filtros.append("(f.turma IS NULL OR f.turma = %s)")
+                parametros.append(turma_do_aluno)
+            else:
+                filtros.append("f.turma IS NULL")
+
+        where = ("WHERE " + " AND ".join(filtros)) if filtros else ""
+
         cursor.execute(
-            """
+            f"""
             SELECT
                 f.id_foto,
                 f.nome_arquivo,
                 f.legenda,
+                f.turma,
                 f.data_postagem,
                 g.nome AS nome_gestor,
                 COUNT(c.id_comentario) AS total_comentarios
             FROM fotos f
             LEFT JOIN gestão g ON g.id_gestor = f.id_gestor
             LEFT JOIN comentarios c ON c.id_foto = f.id_foto
-            GROUP BY f.id_foto, f.nome_arquivo, f.legenda, f.data_postagem, g.nome
+            {where}
+            GROUP BY f.id_foto, f.nome_arquivo, f.legenda, f.turma,
+                     f.data_postagem, g.nome
             ORDER BY f.data_postagem DESC
-            """
+            """,
+            tuple(parametros)
         )
 
         fotos_lista = cursor.fetchall()
@@ -1139,6 +1199,12 @@ def listar_comentarios(id_foto):
         conexao = conectar_banco()
         cursor = conexao.cursor(dictionary=True)
 
+        if not _foto_visivel(cursor, id_foto):
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Foto não encontrada."
+            }), 404
+
         cursor.execute(
             """
             SELECT
@@ -1211,6 +1277,18 @@ def comentar_foto(id_foto):
 
         conexao = conectar_banco()
         cursor = conexao.cursor()
+
+        if len(texto) > 500:
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "O comentário pode ter no máximo 500 caracteres."
+            }), 400
+
+        if not _foto_visivel(cursor, id_foto):
+            return jsonify({
+                "sucesso": False,
+                "mensagem": "Foto não encontrada."
+            }), 404
 
         cursor.execute(
             """
@@ -1764,6 +1842,443 @@ def verificar_imagem_adequada(nome_arquivo, conteudo):
         return False, "Imagem bloqueada: conteúdo violento."
 
     return True, None
+
+
+
+# ================= APOIO: TURMA / VISIBILIDADE DE FOTOS =================
+
+def _valor(linha, chave, posicao=0):
+    """Lê o valor de uma linha de cursor comum (tupla) ou dictionary (dict)."""
+    if linha is None:
+        return None
+    return linha[chave] if isinstance(linha, dict) else linha[posicao]
+
+
+def _turma_existe(cursor, codigo):
+    cursor.execute(
+        """
+        SELECT 1 FROM turmas_cadastradas WHERE codigo = %s
+        UNION
+        SELECT 1 FROM turmas WHERE turma = %s
+        """,
+        (codigo, codigo)
+    )
+    return cursor.fetchone() is not None
+
+
+def _turma_do_aluno(cursor, aluno_id):
+    """Turma do aluno logado (pela matrícula ligada ao login) ou None."""
+    if not aluno_id:
+        return None
+    cursor.execute(
+        "SELECT turma FROM turmas WHERE id_login = %s LIMIT 1", (aluno_id,)
+    )
+    return _valor(cursor.fetchone(), 'turma')
+
+
+def _foto_visivel(cursor, id_foto):
+    """Gestão vê toda foto; aluno só a geral (sem turma) ou a da própria turma."""
+    cursor.execute("SELECT turma FROM fotos WHERE id_foto = %s", (id_foto,))
+    foto = cursor.fetchone()
+    if foto is None:
+        return False
+    turma_da_foto = _valor(foto, 'turma')
+    if session.get('gestor_id') or turma_da_foto is None:
+        return True
+    return turma_da_foto == _turma_do_aluno(cursor, session.get('aluno_id'))
+
+
+def _validar_nome_ra(nome, ra):
+    if not nome or not ra:
+        return "Nome e RA são obrigatórios."
+    if len(nome) > 50 or len(ra) > 50:
+        return "Nome e RA podem ter no máximo 50 caracteres."
+    return None
+
+
+# ================= GESTÃO: DETALHES / EDITAR / EXCLUIR TURMA =================
+# Rotas: GET, PUT e DELETE em /api/turmas/<turma>   (só gestão)
+
+@app.route('/api/turmas/<turma>', methods=['GET'])
+def detalhes_turma(turma):
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT codigo, nome, professor, turno, cor
+            FROM turmas_cadastradas WHERE codigo = %s
+            """,
+            (turma,)
+        )
+        dados = cursor.fetchone()
+
+        cursor.execute("SELECT COUNT(*) AS total FROM turmas WHERE turma = %s", (turma,))
+        total_alunos = cursor.fetchone()['total']
+
+        # Turma antiga, que só existe porque tem alunos (sem ficha cadastrada)
+        if dados is None:
+            if total_alunos == 0:
+                return _negar("Turma não encontrada.", 404)
+            dados = {"codigo": turma, "nome": None, "professor": None,
+                     "turno": None, "cor": None}
+
+        cursor.execute("SELECT COUNT(*) AS total FROM fotos WHERE turma = %s", (turma,))
+
+        dados['total_alunos'] = total_alunos
+        dados['total_fotos'] = cursor.fetchone()['total']
+
+        return jsonify({"sucesso": True, "turma": dados}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        return _negar("Erro ao buscar a turma.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+@app.route('/api/turmas/<turma>', methods=['PUT'])
+def editar_turma(turma):
+
+    dados = request.get_json(silent=True) or {}
+    nome = (dados.get('nome') or '').strip()
+    professor = (dados.get('professor') or '').strip()
+    turno = (dados.get('turno') or '').strip()
+    cor = (dados.get('cor') or '').strip()
+
+    if not nome or not professor:
+        return _negar("Preencha nome e professor.", 400)
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+
+        cursor.execute("SELECT 1 FROM turmas_cadastradas WHERE codigo = %s", (turma,))
+        ja_tem_ficha = cursor.fetchone() is not None
+
+        if ja_tem_ficha:
+            cursor.execute(
+                """
+                UPDATE turmas_cadastradas
+                SET nome = %s, professor = %s, turno = %s, cor = %s
+                WHERE codigo = %s
+                """,
+                (nome[:100], professor[:100], turno[:20], cor[:100], turma)
+            )
+        else:
+            # Turma antiga que só existia pelos alunos: cria a ficha agora
+            cursor.execute("SELECT 1 FROM turmas WHERE turma = %s LIMIT 1", (turma,))
+            if cursor.fetchone() is None:
+                return _negar("Turma não encontrada.", 404)
+
+            cursor.execute(
+                """
+                INSERT INTO turmas_cadastradas (codigo, nome, professor, turno, cor)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (turma[:50], nome[:100], professor[:100], turno[:20], cor[:100])
+            )
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": "Turma atualizada!"}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao atualizar a turma.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+@app.route('/api/turmas/<turma>', methods=['DELETE'])
+def excluir_turma(turma):
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+
+        # Não apaga turma que ainda tem gente ou foto dentro (evita perder dado)
+        cursor.execute("SELECT COUNT(*) FROM turmas WHERE turma = %s", (turma,))
+        total_alunos = cursor.fetchone()[0]
+        if total_alunos > 0:
+            return _negar(
+                f"Esta turma ainda tem {total_alunos} aluno(s). "
+                "Mova ou exclua os alunos antes de excluir a turma.", 409)
+
+        cursor.execute("SELECT COUNT(*) FROM fotos WHERE turma = %s", (turma,))
+        total_fotos = cursor.fetchone()[0]
+        if total_fotos > 0:
+            return _negar(
+                f"Esta turma ainda tem {total_fotos} foto(s) publicada(s) só para ela. "
+                "Exclua as fotos antes de excluir a turma.", 409)
+
+        cursor.execute("DELETE FROM turmas_cadastradas WHERE codigo = %s", (turma,))
+        if cursor.rowcount == 0:
+            return _negar("Turma não encontrada.", 404)
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": "Turma excluída!"}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao excluir a turma.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+# ================= GESTÃO: EDITAR / EXCLUIR ALUNO / REDEFINIR SENHA =================
+# O aluno é identificado pela MATRÍCULA (turmas.id_aluno, o mesmo id que
+# /api/turmas/<turma>/alunos devolve). O login fica em turmas.id_login.
+
+def _buscar_matricula(cursor, id_matricula):
+    cursor.execute(
+        """
+        SELECT id_aluno, id_login, nome_aluno, ra_aluno, turma
+        FROM turmas WHERE id_aluno = %s
+        """,
+        (id_matricula,)
+    )
+    return cursor.fetchone()
+
+
+@app.route('/api/matriculas/<int:id_matricula>', methods=['PUT'])
+def editar_aluno(id_matricula):
+
+    dados = request.get_json(silent=True) or {}
+    nome = (dados.get('nome') or '').strip()
+    ra = (dados.get('ra') or '').strip()
+    turma = (dados.get('turma') or '').strip()
+
+    erro_validacao = _validar_nome_ra(nome, ra)
+    if erro_validacao or not turma:
+        return _negar(erro_validacao or "Escolha a turma.", 400)
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        atual = _buscar_matricula(cursor, id_matricula)
+        if atual is None:
+            return _negar("Aluno não encontrado.", 404)
+
+        # Pode mover pra qualquer turma que exista (ou ficar na mesma)
+        if turma != atual['turma'] and not _turma_existe(cursor, turma):
+            return _negar("Essa turma não existe.", 400)
+
+        # Nome é o usuário de login: não pode repetir
+        cursor.execute(
+            "SELECT 1 FROM turmas WHERE nome_aluno = %s AND id_aluno <> %s",
+            (nome, id_matricula)
+        )
+        repetido = cursor.fetchone()
+        if not repetido:
+            cursor.execute(
+                "SELECT 1 FROM aluno WHERE nome = %s AND id_aluno <> %s",
+                (nome, atual['id_login'] or -1)
+            )
+            repetido = cursor.fetchone()
+        if repetido:
+            return _negar("Já existe um aluno com esse nome.", 409)
+
+        cursor.execute(
+            "SELECT 1 FROM turmas WHERE ra_aluno = %s AND id_aluno <> %s",
+            (ra, id_matricula)
+        )
+        if cursor.fetchone():
+            return _negar("Já existe um aluno com esse RA.", 409)
+
+        cursor.execute(
+            "UPDATE turmas SET nome_aluno = %s, ra_aluno = %s, turma = %s WHERE id_aluno = %s",
+            (nome, ra, turma, id_matricula)
+        )
+
+        if atual['id_login']:
+            cursor.execute(
+                "UPDATE aluno SET nome = %s WHERE id_aluno = %s",
+                (nome, atual['id_login'])
+            )
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": "Aluno atualizado!"}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao atualizar o aluno.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+@app.route('/api/matriculas/<int:id_matricula>/senha', methods=['POST'])
+def redefinir_senha_aluno(id_matricula):
+
+    dados = request.get_json(silent=True) or {}
+    senha = dados.get('senha') or ''
+
+    if len(senha) < 4:
+        return _negar("A senha precisa ter pelo menos 4 caracteres.", 400)
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        atual = _buscar_matricula(cursor, id_matricula)
+        if atual is None:
+            return _negar("Aluno não encontrado.", 404)
+
+        senha_hash = generate_password_hash(senha)
+
+        if atual['id_login']:
+            cursor.execute(
+                "UPDATE aluno SET senha = %s WHERE id_aluno = %s",
+                (senha_hash, atual['id_login'])
+            )
+            mensagem = "Senha redefinida!"
+
+        else:
+            # Matrícula sem login (ex: dados de exemplo): cria o login agora
+            cursor.execute("SELECT 1 FROM aluno WHERE nome = %s", (atual['nome_aluno'],))
+            if cursor.fetchone():
+                return _negar("Já existe um login com o nome desse aluno.", 409)
+
+            cursor.execute(
+                "INSERT INTO aluno (nome, senha) VALUES (%s, %s)",
+                (atual['nome_aluno'], senha_hash)
+            )
+            cursor.execute(
+                "UPDATE turmas SET id_login = %s WHERE id_aluno = %s",
+                (cursor.lastrowid, id_matricula)
+            )
+            mensagem = "Login criado com a senha informada!"
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": mensagem}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao redefinir a senha.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+@app.route('/api/matriculas/<int:id_matricula>', methods=['DELETE'])
+def excluir_aluno(id_matricula):
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor(dictionary=True)
+
+        atual = _buscar_matricula(cursor, id_matricula)
+        if atual is None:
+            return _negar("Aluno não encontrado.", 404)
+
+        id_login = atual['id_login']
+
+        if id_login:
+            # Apaga o que o aluno escreveu antes de apagar o login
+            cursor.execute("DELETE FROM comentarios WHERE id_aluno = %s", (id_login,))
+            cursor.execute("DELETE FROM mensagens WHERE id_aluno = %s", (id_login,))
+
+        cursor.execute("DELETE FROM turmas WHERE id_aluno = %s", (id_matricula,))
+
+        if id_login:
+            cursor.execute("DELETE FROM aluno WHERE id_aluno = %s", (id_login,))
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": "Aluno excluído!"}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao excluir o aluno.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
+
+
+# ================= GESTÃO: APAGAR COMENTÁRIO =================
+# Rota: DELETE /api/comentarios/<id>
+
+@app.route('/api/comentarios/<int:id_comentario>', methods=['DELETE'])
+def excluir_comentario(id_comentario):
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar_banco()
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            "DELETE FROM comentarios WHERE id_comentario = %s", (id_comentario,)
+        )
+        if cursor.rowcount == 0:
+            return _negar("Comentário não encontrado.", 404)
+
+        conexao.commit()
+        return jsonify({"sucesso": True, "mensagem": "Comentário apagado!"}), 200
+
+    except mysql.connector.Error as erro:
+        print(f"Erro no banco: {erro}")
+        if conexao:
+            conexao.rollback()
+        return _negar("Erro ao apagar o comentário.", 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conexao:
+            conexao.close()
 
 
 

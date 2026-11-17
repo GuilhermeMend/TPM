@@ -187,7 +187,25 @@ async function carregarEnviadas() {
     }
 }
 
+// Números da faixa de estatísticas (vêm do banco, rota /api/estatisticas)
+async function carregarEstatisticas() {
+    try {
+        const resposta = await apiFetch(`${API_BASE}/api/estatisticas`);
+        const dados = await resposta.json();
+        if (!dados.sucesso) return;
+        const campos = { 'stat-turmas': dados.total_turmas, 'stat-professores': dados.total_professores,
+                         'stat-alunos': dados.total_alunos, 'stat-fotos': dados.total_fotos };
+        Object.keys(campos).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = campos[id];
+        });
+    } catch (erro) {
+        console.error('Erro ao carregar estatísticas:', erro);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    carregarEstatisticas();
     preencherNomeContato();
     carregarCaixaEntrada();
 });

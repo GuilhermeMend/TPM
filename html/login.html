@@ -56,16 +56,9 @@
     <!-- MODAL ESQUECI SENHA -->
     <div class="modal-overlay" id="modalSenha">
         <div class="modal-box">
-            <h2>🔑 Recuperar Senha</h2>
-            <p>Digite o e-mail ou usuário cadastrado. Você receberá as instruções de recuperação.</p>
-            <input
-                type="text"
-                placeholder="E-mail ou usuário"
-                id="inputRecuperacao"
-            >
-            <p class="modal-msg" id="modalMsg"></p>
-            <button class="btn-enviar" onclick="enviarRecuperacao()">Enviar</button>
-            <button class="btn-fechar" onclick="fecharModalSenha()">Cancelar</button>
+            <h2>🔑 Esqueceu a senha?</h2>
+            <p>Por segurança, a senha é redefinida pela gestão da escola. Procure a gestão e peça uma nova senha: ela passa a valer na hora.</p>
+            <button class="btn-fechar" onclick="fecharModalSenha()">Entendi</button>
         </div>
     </div>
 
@@ -74,27 +67,12 @@
     <script>
         function abrirModalSenha() {
             document.getElementById('modalSenha').classList.add('ativo');
-            document.getElementById('inputRecuperacao').value = '';
-            document.getElementById('modalMsg').style.color = '';
-            document.getElementById('modalMsg').textContent = '';
         }
 
         function fecharModalSenha() {
             document.getElementById('modalSenha').classList.remove('ativo');
         }
 
-        function enviarRecuperacao() {
-            const val = document.getElementById('inputRecuperacao').value.trim();
-            const msg = document.getElementById('modalMsg');
-            if (!val) {
-                msg.style.color = 'rgb(248,113,113)';
-                msg.textContent = 'Por favor, preencha o campo acima.';
-                return;
-            }
-            msg.style.color = 'rgb(74,222,128)';
-            msg.textContent = '✅ Instruções enviadas! Verifique seu e-mail.';
-            setTimeout(fecharModalSenha, 2500);
-        }
 
         // Fechar modal clicando fora
         document.getElementById('modalSenha').addEventListener('click', function(e) {

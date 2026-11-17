@@ -63,10 +63,23 @@
                     <label>Legenda</label>
                     <input type="text" id="foto-legenda" placeholder="Ex: Festa Junina 2026">
                 </div>
+                <div class="campo">
+                    <label>Quem pode ver</label>
+                    <select id="foto-turma">
+                        <option value="">Todas as turmas</option>
+                    </select>
+                </div>
                 <button class="btn-enviar" onclick="publicarFoto()">
                     Publicar foto →
                 </button>
                 <p id="foto-msg" style="font-weight:600; display:none; margin-top:10px; text-align:center;"></p>
+            </div>
+
+            <div class="foto-filtro">
+                <label for="filtro-turma">Mostrar fotos de:</label>
+                <select id="filtro-turma" onchange="carregarFotosGestao()">
+                    <option value="">Todas</option>
+                </select>
             </div>
 
             <div class="foto-galeria" id="foto-galeria">
@@ -100,6 +113,23 @@
             <div class="modal-acoes">
                 <button class="btn-cancelar" onclick="fecharModal('modal-excluir')">Cancelar</button>
                 <button class="btn-excluir-confirm" id="btn-confirmar-exclusao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================
+         MODAL — COMENTÁRIOS DA FOTO
+    ======================== -->
+    <div class="modal-overlay" id="modal-comentarios">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="comentarios-titulo">Comentários</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-comentarios')">✕</button>
+            </div>
+            <div class="gestao-comentarios-lista" id="gestao-comentarios-lista"></div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-comentarios')">Fechar</button>
             </div>
         </div>
     </div>

@@ -48,20 +48,30 @@ async function mostrarAlunosTurma(turma, btn) {
         const resposta = await apiFetch(`${API_BASE}/api/turmas/${encodeURIComponent(turma)}/alunos`);
         const dados = await resposta.json();
 
-        if (!dados.sucesso || dados.alunos.length === 0) {
-            painel.innerHTML = '<p class="turma-alunos-vazio">Nenhum aluno cadastrado nesta turma ainda.</p>';
+        if (!dados.sucesso) {
+            painel.innerHTML = '<p class="turma-alunos-vazio">Não foi possível carregar os alunos.</p>';
             return;
         }
+
+        // Professor responsável (só aparece se a turma tiver ficha cadastrada)
+        const ficha = dados.turma;
+        const responsavel = ficha && ficha.professor
+            ? `<p class="turma-responsavel">👤 Professor(a) responsável: <strong>${escaparHtml(ficha.professor)}</strong>${ficha.turno ? ' · ' + escaparHtml(ficha.turno) : ''}</p>`
+            : '';
 
         // PÁGINA DO ALUNO: mostramos só o nome de cada colega, de propósito
         // sem o RA (a.ra_aluno existe na resposta da API, mas não usamos
         // aqui). Quem precisa ver o RA é a gestão (gestao.js).
-        painel.innerHTML = dados.alunos.map(a => `
-            <div class="turma-aluno-item">
-                <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
-                ${escaparHtml(a.nome_aluno)}
-            </div>
-        `).join('');
+        const lista = dados.alunos.length === 0
+            ? '<p class="turma-alunos-vazio">Nenhum aluno cadastrado nesta turma ainda.</p>'
+            : dados.alunos.map(a => `
+                <div class="turma-aluno-item">
+                    <div class="an-av" style="background:#3b82f6">${iniciaisDoNome(a.nome_aluno)}</div>
+                    ${escaparHtml(a.nome_aluno)}
+                </div>
+            `).join('');
+
+        painel.innerHTML = responsavel + lista;
 
     } catch (erro) {
         console.error('Erro ao carregar alunos da turma:', erro);
