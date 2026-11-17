@@ -8,6 +8,7 @@ import uuid
 import requests
 import time
 from functools import wraps
+from datetime import timedelta
 
 # Lê o arquivo .env (se existir) para as chaves e segredos
 try:
@@ -28,7 +29,9 @@ app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(32)
 # enviado em navegação do próprio site (SameSite=Lax), o que também
 # barra CSRF vindo de outros sites. Em produção com HTTPS, defina
 # SESSION_COOKIE_SECURE=1 no .env.
+# Login expira após 30 min SEM usar o site (cada requisição renova o prazo).
 app.config.update(
+    PERMANENT_SESSION_LIFETIME=timedelta(minutes=30),
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
     SESSION_COOKIE_SECURE=os.environ.get('SESSION_COOKIE_SECURE') == '1'
@@ -194,6 +197,9 @@ def _login_bloqueado():
 
 @app.after_request
 def contar_falhas_de_login(resposta):
+    # Respostas da API nunca ficam guardadas em cache (dados de quem está logado)
+    if request.path.startswith('/api/') or request.endpoint in ('login', 'login_gestao', 'logout'):
+        resposta.headers['Cache-Control'] = 'no-store'
     if request.endpoint in ('login', 'login_gestao'):
         ip = request.remote_addr
         if resposta.status_code == 401:
@@ -294,6 +300,7 @@ def login():
         if usuario_encontrado:
 
             session.clear()
+            session.permanent = True
             session['aluno_id'] = usuario_encontrado['id_aluno']
             session['aluno_nome'] = usuario_encontrado['nome']
 
@@ -537,6 +544,7 @@ def login_gestao():
             # Guarda no cookie de sessão que quem fez login é gestão
             # (usado pra proteger rotas como o cadastro de alunos)
             session.clear()
+            session.permanent = True
             session['gestor_id'] = gestor_encontrado['id_gestor']
             session['gestor_nome'] = gestor_encontrado['nome']
 
@@ -855,6 +863,11 @@ def listar_alunos_da_turma(turma):
         )
 
         alunos_lista = cursor.fetchall()
+
+        # O RA é dado pessoal: só a gestão recebe. Aluno vê só nome.
+        if not session.get('gestor_id'):
+            for aluno in alunos_lista:
+                aluno.pop('ra_aluno', None)
 
         # Ficha da turma (professor responsável, turno). Turmas antigas, que
         # só existem pelos alunos, não têm ficha: nesse caso vai None.

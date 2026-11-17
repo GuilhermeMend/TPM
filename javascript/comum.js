@@ -79,7 +79,7 @@ async function sair() {
 // confirmar a sessão; se não houver login do tipo certo, volta pro login.
 // (A segurança de verdade está no servidor — as rotas /api checam a sessão
 // por conta própria. Isto aqui só evita mostrar tela que a pessoa não pode usar.)
-(function protegerPagina() {
+function protegerPagina() {
     const tipo = document.body && document.body.dataset.acesso;
     if (!tipo) return;
 
@@ -88,7 +88,10 @@ async function sair() {
         window.location.replace('login.html');
     }
 
-    apiFetch(`${API_BASE}/api/sessao`)
+    // Esconde a página até o servidor confirmar o login
+    document.body.style.visibility = 'hidden';
+
+    apiFetch(`${API_BASE}/api/sessao`, { cache: 'no-store' })
         .then(resposta => resposta.json().then(dados => ({ ok: resposta.ok, dados })))
         .then(({ ok, dados }) => {
             if (!ok || !dados.sucesso || dados.tipo !== tipo) {
@@ -107,7 +110,16 @@ async function sair() {
             document.body.style.visibility = '';
         })
         .catch(voltarAoLogin);
-})();
+}
+
+protegerPagina();
+
+// Botão Voltar/Avançar (ou gesto do touchpad): o navegador pode devolver a
+// página antiga direto da memória (bfcache) sem rodar o código de novo.
+// Nesse caso o pageshow dispara com persisted=true e conferimos a sessão outra vez.
+window.addEventListener('pageshow', function (evento) {
+    if (evento.persisted) protegerPagina();
+});
 
 // Faz uma chamada JSON à API. Devolve os dados se deu certo; se der erro,
 // mostra a mensagem do servidor num alert e devolve null.

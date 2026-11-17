@@ -2,6 +2,15 @@
 // senão o navegador não guarda o cookie de login.
 const API_BASE = `http://${window.location.hostname || "localhost"}:5000`;
 
+// Chegar na tela de login (inclusive pelo botão Voltar do navegador) encerra
+// qualquer login que ainda estivesse ativo, no servidor e no navegador.
+// pageshow roda também quando o navegador restaura a página do cache.
+window.addEventListener("pageshow", function () {
+    sessionStorage.clear();
+    fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" })
+        .catch(() => { /* servidor desligado: nada a encerrar */ });
+});
+
 // Guarda se o tipo de login escolhido é "aluno" ou "admin" (gestão).
 // Começa em "aluno" porque é a opção que já vem marcada na tela.
 let tipoSelecionado = "aluno";
