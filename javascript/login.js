@@ -21,6 +21,7 @@ document.getElementById("btnAluno").onclick = function () {
     tipoSelecionado = "aluno";
     this.classList.add("ativo");
     document.getElementById("btnAdmin").classList.remove("ativo");
+    ajustarCampoUsuario();
 };
 
 // Clique no botão "Admin" — mesma lógica, só que pro lado da gestão
@@ -28,7 +29,23 @@ document.getElementById("btnAdmin").onclick = function () {
     tipoSelecionado = "admin";
     this.classList.add("ativo");
     document.getElementById("btnAluno").classList.remove("ativo");
+    ajustarCampoUsuario();
 };
+
+// Aluno entra pelo RA; a gestão continua entrando pelo nome de usuário.
+// Só muda o texto do campo e limpa o que foi digitado no outro modo.
+function ajustarCampoUsuario() {
+    const campo = document.getElementById("usuario");
+    campo.value = "";
+    if (tipoSelecionado === "aluno") {
+        campo.placeholder = "Digite seu RA";
+        campo.inputMode = "numeric";
+    } else {
+        campo.placeholder = "Digite seu usuário";
+        campo.inputMode = "text";
+    }
+    document.getElementById("mensagem").innerText = "";
+}
 
 // Função principal de login. É assíncrona porque precisa esperar
 // a resposta do servidor Flask antes de continuar.
@@ -41,7 +58,9 @@ async function validarLogin() {
     // requisição com o servidor
     if (!usuario || !senha) {
         msg.style.color = "red";
-        msg.innerText = "Preencha usuário e senha!";
+        msg.innerText = tipoSelecionado === "aluno"
+            ? "Preencha o RA e a senha!"
+            : "Preencha usuário e senha!";
         return;
     }
 
@@ -90,7 +109,7 @@ async function validarLogin() {
                 method: "POST",
                 credentials: "include", // guarda o cookie de sessão do aluno
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nome: usuario, senha: senha })
+                body: JSON.stringify({ ra: usuario, senha: senha })
             });
 
             const dados = await resposta.json();
@@ -98,11 +117,12 @@ async function validarLogin() {
             if (dados.sucesso) {
                 sessionStorage.clear();
                 sessionStorage.setItem("usuario_id", dados.usuario_id);
-                sessionStorage.setItem("usuario_nome", usuario);
+                // O campo agora tem o RA, então o nome vem da resposta do servidor
+                sessionStorage.setItem("usuario_nome", dados.nome || usuario);
                 window.location.href = "home.html";
             } else {
                 msg.style.color = "red";
-                msg.innerText = dados.mensagem || "Usuário ou senha incorretos.";
+                msg.innerText = dados.mensagem || "RA ou senha incorretos.";
             }
 
         } catch (erro) {

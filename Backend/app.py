@@ -253,8 +253,8 @@ def login():
     dados = request.get_json(silent=True) or {}
 
 
-    # Pega o nome enviado pelo usuário
-    nome_recebido = dados.get('nome')
+    # Pega o RA enviado pelo aluno (o login do aluno é pelo RA, não pelo nome)
+    ra_recebido = str(dados.get('ra') or '').strip()
 
     # Pega a senha enviada pelo usuário
     senha_recebida = dados.get('senha')
@@ -276,14 +276,16 @@ def login():
 
 
 
-        # Procura um aluno com o mesmo nome e senha
+        # Procura o aluno pelo RA. O RA fica na matrícula (tabela `turmas`),
+        # que se liga ao login (tabela `aluno`) pelo id_login.
         cursor.execute(
             """
-            SELECT id_aluno, nome, senha
-            FROM aluno
-            WHERE nome = %s
+            SELECT a.id_aluno, a.nome, a.senha
+            FROM turmas t
+            JOIN aluno a ON a.id_aluno = t.id_login
+            WHERE t.ra_aluno = %s
             """,
-            (nome_recebido,)
+            (ra_recebido,)
         )
 
 
@@ -310,21 +312,23 @@ def login():
 
                 "mensagem": f"Bem-vindo, {usuario_encontrado['nome']}!",
 
-                # Envia o ID do aluno para o sistema
-                "usuario_id": usuario_encontrado['id_aluno']
+                # Envia o ID e o nome do aluno para o sistema
+                "usuario_id": usuario_encontrado['id_aluno'],
+                "nome": usuario_encontrado['nome']
 
             }), 200
 
 
 
-        # Caso nome ou senha estejam errados
+        # Caso RA ou senha estejam errados (mesma mensagem nos dois casos,
+        # pra não revelar se o RA existe)
         else:
 
             return jsonify({
 
                 "sucesso": False,
 
-                "mensagem": "Usuário ou senha incorretos."
+                "mensagem": "RA ou senha incorretos."
 
             }), 401
 
