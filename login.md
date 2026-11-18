@@ -1,14 +1,16 @@
-login.md:
 | Comando           | Função               |
 | ----------------- | -------------------- |
 | `display: flex`   | ativa Flexbox        |
 | `justify-content` | mexe horizontalmente |
 | `align-items`     | mexe verticalmente   |
 
-O que mudou:
-login.js — removeu o hash hardcoded completamente. Agora o admin também faz fetch para o Flask, consultando o banco igual ao aluno.
-app.py — adicionou a rota /login_gestao que consulta a tabela gestão com as colunas id_gestor, nome, senha.
-O fluxo agora é:
-Aluno → /login → tabela aluno → redireciona para home.html
-Gestão → /login_gestao → tabela gestão → redireciona para gestao.html
-As credenciais que vão funcionar são exatamente as do banco: nome prof / senha admin.
+## Fluxo de login
+
+- Aluno  → `/login` → tabela `aluno` → `home.html`
+- Gestão → `/login_gestao` → tabela `gestão` → `gestao.html`
+
+As senhas ficam como hash no banco. Para criar o primeiro usuário da gestão:
+`python Backend/criar_gestor.py`.
+
+Abrir a tela de login (ou usar o Voltar do navegador até ela) encerra a sessão.
+O login também expira sozinho após 30 minutos sem uso.
