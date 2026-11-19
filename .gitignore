@@ -1,0 +1,17 @@
+# Segredos: NUNCA versionar
+.env
+Backend/.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Fotos enviadas pela gestão (ficam só no servidor)
+uploads/*
+!uploads/.gitkeep
+Backend/uploads/*
+!Backend/uploads/.gitkeep
+
+# Dumps do banco (têm dados de gente de verdade)
+*.dump.sql
+backup*.sql

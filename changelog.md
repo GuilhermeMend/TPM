@@ -1,6 +1,6 @@
 # Changelog
 
-#18/11/2026
+# 18/11/2026
 
 ### Alterado
 - Login do aluno agora é feito com "RA" e "Senha"(antes era nome e senha).
@@ -14,3 +14,11 @@
 - O login da gestão continua por usuário e senha.
 - Não precisa alterar o banco de dados (tcc.sql).
 - Alunos sem login (como os de exemplo do tcc.sql).
+
+# Changelog
+
+# 19/11/2026
+
+### Alterado
+- Gitignore: adicionado um principal que está por fora do Backend.
+    - Gitignore da raiz: bloquea .env, uploads, __pycache__ e dumps do banco.
