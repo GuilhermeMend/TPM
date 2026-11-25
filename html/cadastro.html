@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro - Anuário Escolar</title>
+
+    <link rel="stylesheet" href="../css/cadastro.css">
+</head>
+
+<body data-acesso="gestao" style="visibility:hidden">
+
+    <div class="login-container">
+
+        <h1>Cadastrar aluno</h1>
+
+        <!-- Nome -->
+        <input
+            type="text"
+            placeholder="Nome completo"
+            id="nome"
+        >
+
+        <!-- RA -->
+        <input
+            type="text"
+            placeholder="RA do aluno"
+            id="ra"
+        >
+
+        <!-- Turma (carregada do banco). O <select> escondido guarda o valor;
+             quem aparece é o menu abaixo, que combina com o resto da tela. -->
+        <div class="seletor" id="seletor-turma">
+            <select id="turma" hidden>
+                <option value="">Carregando turmas...</option>
+            </select>
+
+            <button type="button" class="seletor-botao" id="seletor-botao"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="seletor-lista">
+                <span class="seletor-texto" id="seletor-texto">Carregando turmas...</span>
+                <svg class="seletor-seta" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            <ul class="seletor-lista" id="seletor-lista" role="listbox" tabindex="-1"
+                aria-label="Turmas"></ul>
+        </div>
+
+        <!-- Senha -->
+        <input
+            type="password"
+            placeholder="Senha"
+            id="senha"
+        >
+
+        <!-- Mensagem -->
+        <h3 id="mensagem"></h3>
+
+
+        <!-- Botão -->
+        <button id="btnCadastro">
+            Cadastrar
+        </button>
+
+
+        <!-- Voltar -->
+        <div class="cadastro-link">
+
+            <a href="gestao-turmas.html" class="btn-voltar">
+                Voltar ao painel
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script src="../javascript/comum.js"></script>
+    <script src="../javascript/cadastro.js"></script>
+
+</body>
+
+</html>

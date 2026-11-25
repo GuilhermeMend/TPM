@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotos — Gestão</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/gestao.css">
+    <link rel="stylesheet" href="../css/tema.css">
+    <script>
+        // Aplica o tema salvo ANTES da página desenhar, pra não piscar
+        if (localStorage.getItem('tema') === 'escuro') {
+            document.documentElement.setAttribute('data-tema', 'escuro');
+        }
+    </script>
+</head>
+
+<body data-acesso="gestao" style="visibility:hidden">
+
+    <!-- ========================
+         HEADER
+    ======================== -->
+    <header>
+        <div class="header-logo">
+            <span class="logo-icon">🎓</span>
+            <h1>Anuário Escolar <span class="gestao-badge">Gestão</span></h1>
+        </div>
+
+        <nav>
+            <a href="gestao.html">Painel</a>
+            <a href="gestao-turmas.html">Turmas</a>
+            <a href="gestao-fotos.html" class="ativo-nav">Fotos</a>
+            <a href="gestao.html#avisos">Avisos</a>
+        </nav>
+
+        <button class="btn-tema" id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
+        <button class="btn-sair" onclick="sair()">
+            Sair
+        </button>
+    </header>
+
+    <main>
+
+        <!-- ========================
+             FOTOS
+        ======================== -->
+        <section class="secao" id="fotos">
+
+            <div class="secao-header">
+                <h2>Fotos</h2>
+                <p>Publique fotos para os alunos verem e comentarem</p>
+            </div>
+
+            <div class="card foto-upload-card">
+                <h3>Nova foto</h3>
+                <div class="campo">
+                    <label>Imagem</label>
+                    <input type="file" id="foto-arquivo" accept="image/png, image/jpeg, image/gif, image/webp">
+                </div>
+                <div class="campo">
+                    <label>Legenda</label>
+                    <input type="text" id="foto-legenda" placeholder="Ex: Festa Junina 2026">
+                </div>
+                <div class="campo">
+                    <label>Quem pode ver</label>
+                    <select id="foto-turma">
+                        <option value="">Todas as turmas</option>
+                    </select>
+                </div>
+                <button class="btn-enviar" onclick="publicarFoto()">
+                    Publicar foto →
+                </button>
+                <p id="foto-msg" style="font-weight:600; display:none; margin-top:10px; text-align:center;"></p>
+            </div>
+
+            <div class="foto-filtro">
+                <label for="filtro-turma">Mostrar fotos de:</label>
+                <select id="filtro-turma" onchange="carregarFotosGestao()">
+                    <option value="">Todas</option>
+                </select>
+            </div>
+
+            <div class="foto-galeria" id="foto-galeria">
+                <p class="turma-alunos-vazio">Carregando fotos...</p>
+            </div>
+
+        </section>
+
+
+    </main>
+
+    <!-- ========================
+         FOOTER
+    ======================== -->
+    <footer>
+        <p>© 2026 · Anuário Escolar · Painel de Gestão · Acesso restrito</p>
+    </footer>
+
+    <!-- ========================
+         MODAL — CONFIRMAR EXCLUSÃO
+    ======================== -->
+    <div class="modal-overlay" id="modal-excluir">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar exclusão</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-excluir')">✕</button>
+            </div>
+            <p style="color:#64748b; font-size:14px; margin-bottom:24px;" id="excluir-msg">
+                Tem certeza que deseja excluir este item?<br>Essa ação não pode ser desfeita.
+            </p>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-excluir')">Cancelar</button>
+                <button class="btn-excluir-confirm" id="btn-confirmar-exclusao">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================
+         MODAL — COMENTÁRIOS DA FOTO
+    ======================== -->
+    <div class="modal-overlay" id="modal-comentarios">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="comentarios-titulo">Comentários</h3>
+                <button class="modal-fechar" onclick="fecharModal('modal-comentarios')">✕</button>
+            </div>
+            <div class="gestao-comentarios-lista" id="gestao-comentarios-lista"></div>
+            <div class="modal-acoes">
+                <button class="btn-cancelar" onclick="fecharModal('modal-comentarios')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../javascript/tema.js"></script>
+    <script src="../javascript/comum.js"></script>
+    <script src="../javascript/gestao-fotos.js"></script>
+
+</body>
+</html>
