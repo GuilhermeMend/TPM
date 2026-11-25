@@ -157,3 +157,4 @@ Os dois scripts são seguros para rodar mais de uma vez.
 - dumps do banco (`*.dump.sql`, `backup*.sql`)
 
 Se algum desses já foi enviado por engano, veja o `.gitignore` e use `git rm -r --cached <pasta>` antes de fazer o commit.
+
