@@ -1,0 +1,407 @@
+/* =========================
+   BODY
+========================= */
+
+body {
+
+    background-image: url("../images/sakura.png");
+
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 0;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    font-family: Arial, sans-serif;
+
+    position: relative;
+}
+
+/* CAMADA ESCURA */
+
+body::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    top: 0;
+    left: 0;
+}
+
+/* =========================
+   CAIXA CADASTRO
+========================= */
+
+.login-container {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 375px;
+
+    padding: 50px 55px;
+
+    border-radius: 25px;
+
+    background: rgba(15, 23, 42, 0.55);
+
+    backdrop-filter: blur(12px);
+
+    border: 2px solid rgba(255,255,255,0.15);
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+
+    animation: aparecer 0.8s ease;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   TÍTULO
+========================= */
+
+.login-container h1 {
+
+    color: white;
+
+    text-align: center;
+
+    font-size: 40px;
+
+    margin-bottom: 4px;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.login-container input {
+
+    padding: 14px 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    font-size: 15px;
+
+    color: white;
+
+    background: rgba(255,255,255,0.12);
+
+    transition: 0.3s;
+}
+
+.login-container input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+.login-container input:focus {
+
+    outline: none;
+
+    transform: scale(1.02);
+
+    box-shadow: 0 0 15px rgba(56,189,248,0.6);
+
+    background: rgba(255,255,255,0.18);
+}
+
+/* =========================
+   MENSAGEM
+========================= */
+
+#mensagem {
+
+    font-size: 14px;
+    text-align: center;
+    min-height: 18px;
+    margin: 0;
+}
+
+/* =========================
+   BOTÃO CADASTRAR
+========================= */
+
+.login-container > button {
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    background: linear-gradient(
+        to right,
+        rgb(56,189,248),
+        rgb(37,99,235)
+    );
+}
+
+.login-container > button:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 20px rgba(37,99,235,0.4);
+}
+
+/* =========================
+   VOLTAR PARA LOGIN
+========================= */
+
+.cadastro-link {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 8px;
+}
+
+.cadastro-link span {
+
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+}
+
+.btn-voltar {
+
+    display: inline-block;
+
+    padding: 10px 22px;
+
+    border-radius: 12px;
+    border: 1.5px solid rgba(56,189,248,0.6);
+
+    background: transparent;
+
+    color: rgb(56,189,248);
+
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.btn-voltar:hover {
+
+    background: rgba(56,189,248,0.15);
+    border-color: rgb(56,189,248);
+
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(56,189,248,0.25);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 440px) {
+    .login-container {
+        width: 100%;
+        padding: 36px 28px;
+    }
+}
+
+/* =========================
+   SELETOR DE TURMA (menu próprio, no lugar do <select> nativo)
+========================= */
+
+.seletor {
+    position: relative;
+}
+
+.seletor-botao {
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 14px 16px;
+
+    border: none;
+    border-radius: 14px;
+
+    background: rgba(255,255,255,0.12);
+
+    /* texto de "placeholder": igual ao dos outros campos */
+    color: rgba(255,255,255,0.7);
+
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.seletor-botao.preenchido {
+    color: white;
+}
+
+.seletor-botao:hover {
+    background: rgba(255,255,255,0.16);
+}
+
+.seletor-botao:focus-visible,
+.seletor.aberto .seletor-botao {
+
+    outline: none;
+
+    background: rgba(255,255,255,0.18);
+
+    box-shadow: 0 0 15px rgba(56,189,248,0.6);
+}
+
+/* Turma não escolhida ao tentar cadastrar */
+.seletor-botao.erro {
+    box-shadow: 0 0 0 2px rgba(248,113,113,0.85);
+}
+
+.seletor-seta {
+
+    flex-shrink: 0;
+
+    color: rgba(255,255,255,0.75);
+
+    transition: transform 0.25s ease;
+}
+
+.seletor.aberto .seletor-seta {
+    transform: rotate(180deg);
+    color: rgb(56,189,248);
+}
+
+/* Lista que abre embaixo do botão */
+.seletor-lista {
+
+    position: absolute;
+
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+
+    z-index: 20;
+
+    max-height: 230px;
+    overflow-y: auto;
+
+    margin: 0;
+    padding: 6px;
+
+    list-style: none;
+
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.18);
+
+    background: rgba(15, 23, 42, 0.96);
+
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+
+    /* fechada: invisível e sem receber clique */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+.seletor.aberto .seletor-lista {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.seletor-lista li {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 11px 12px;
+
+    border-radius: 10px;
+
+    color: rgba(255,255,255,0.88);
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition: background 0.15s;
+}
+
+.seletor-lista li.destaque {
+    background: rgba(56,189,248,0.18);
+}
+
+.seletor-lista li.selecionado {
+    color: rgb(56,189,248);
+    font-weight: bold;
+}
+
+/* "visto" ao lado da turma escolhida */
+.seletor-lista li.selecionado::after {
+    content: "\2713";
+    font-size: 15px;
+}
+
+.seletor-lista::-webkit-scrollbar {
+    width: 8px;
+}
+
+.seletor-lista::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 8px;
+}

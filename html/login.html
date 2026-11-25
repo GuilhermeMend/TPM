@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <h1>Login</h1>
+
+        <!-- ESCOLHER TIPO -->
+        <div class="tipo-login">
+
+            <button class="tipo ativo" id="btnAluno">
+                Aluno
+            </button>
+
+            <button class="tipo" id="btnAdmin">
+                Gestão
+            </button>
+
+        </div>
+
+        <h3 id="mensagem" style="color: red; text-shadow: 2px 2px 4px;"></h3>
+
+        <input
+            type="text"
+            placeholder="Digite seu RA"
+            inputmode="numeric"
+            id="usuario"
+            autocomplete="username"
+        >
+
+        <input
+            type="password"
+            placeholder="Digite sua senha"
+            id="senha"
+        >
+
+        <!-- ESQUECI A SENHA -->
+        <div class="esqueci-senha">
+            <a href="#" onclick="abrirModalSenha(); return false;">Esqueci minha senha</a>
+        </div>
+
+        <button onclick="validarLogin()">
+            Entrar
+        </button>
+
+        <!-- Cadastro de alunos agora é feito só pela gestão (cadastro.html) -->
+
+    </div>
+
+    <!-- MODAL ESQUECI SENHA -->
+    <div class="modal-overlay" id="modalSenha">
+        <div class="modal-box">
+            <h2>🔑 Esqueceu a senha?</h2>
+            <p>Por segurança, a senha é redefinida pela gestão da escola. Procure a gestão e peça uma nova senha: ela passa a valer na hora.</p>
+            <button class="btn-fechar" onclick="fecharModalSenha()">Entendi</button>
+        </div>
+    </div>
+
+    <script src="../javascript/login.js"></script>
+
+    <script>
+        function abrirModalSenha() {
+            document.getElementById('modalSenha').classList.add('ativo');
+        }
+
+        function fecharModalSenha() {
+            document.getElementById('modalSenha').classList.remove('ativo');
+        }
+
+
+        // Fechar modal clicando fora
+        document.getElementById('modalSenha').addEventListener('click', function(e) {
+            if (e.target === this) fecharModalSenha();
+        });
+    </script>
+
+</body>
+
+</html>
