@@ -14,7 +14,7 @@
    SIGHTENGINE_SECRET=<chave>
    ```
 3. Rode `tcc.sql` no MySQL e depois `python Backend/criar_gestor.py` (cria o 1º usuário da gestão).
-4. `python app.py` (Flask na porta 5000).
+4. `python Backend/app.py` (Flask na porta 5000).
 5. Abra `html/index.html` com o Live Server na porta 5501, por `http://localhost:5501`.
 
 ## Estrutura do backend
